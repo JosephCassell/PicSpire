@@ -40,7 +40,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       }
-    ], { validate: true });
+    ], { validate: true }, options);
   },
 
   async down (queryInterface, Sequelize) {
