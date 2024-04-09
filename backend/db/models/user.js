@@ -4,7 +4,23 @@ const { Model, Validator } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // define association here
+      User.hasMany(models.Post, { foreignKey: 'user_id', as: 'posts' });
+      User.hasMany(models.Comment, { foreignKey: 'user_id', as: 'comments' });
+      User.hasMany(models.Reaction, { foreignKey: 'user_id', as: 'reactions' });
+      User.belongsToMany(models.User, { 
+        through: 'Followers', 
+        as: 'followers', 
+        foreignKey: 'followed_id', 
+        otherKey: 'follower_id' 
+      });
+      User.belongsToMany(models.User, { 
+        through: 'Followers', 
+        as: 'following', 
+        foreignKey: 'follower_id', 
+        otherKey: 'followed_id' 
+      });
+      User.hasMany(models.Message, { foreignKey: 'sender_id', as: 'sentMessages' });
+      User.hasMany(models.Message, { foreignKey: 'receiver_id', as: 'receivedMessages' });
     }
   };
 
@@ -37,6 +53,13 @@ module.exports = (sequelize, DataTypes) => {
       lastName: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      bio: {
+        type: DataTypes.STRING
+      },
+      profilePicture: {
+        type: DataTypes.STRING,
+        defaultValue: "default_profile_picture_url"
       },
       hashedPassword: {
         type: DataTypes.STRING.BINARY,
