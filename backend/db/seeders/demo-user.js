@@ -1,7 +1,6 @@
 'use strict';
 
 const bcrypt = require("bcryptjs");
-const { User } = require('../models');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
@@ -10,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await User.bulkCreate([
+    await queryInterface.bulkInsert({ tableName: 'Users', schema: process.env.SCHEMA }, [
       {
         email: 'demo@user.io',
         username: 'Demo-lition',
