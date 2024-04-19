@@ -1,0 +1,143 @@
+
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    padding: 20px;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  .profile-content {
+    display: flex;
+    align-items: start;
+    margin-left: 10%;
+  }
+  
+  .profile-detail {
+    margin: 10px;
+  }
+  
+  
+  .profile-name{
+    margin-top: -10px;
+  }
+  .profile-picture img,
+  .profile-picture-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 75px;
+    object-fit: cover;
+    border: 2px solid transparent;
+  }
+  
+  .profile-picture-placeholder {
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+  }
+  
+  .profile-picture-placeholder:hover {
+    background-color: #bbb;
+    cursor: pointer;
+  }
+  .followers-info {
+    margin-right: 20px;
+  }
+  .follow-info {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+  }
+  .user-info {
+    margin: 5px;
+  }
+  .edit-profile-button {
+    align-self: flex-end;
+    cursor: pointer;
+    color: #1b79dd;
+    background-color: transparent;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s;
+    display: block;
+    padding-bottom: 25px;
+  }
+  .edit-profile-button:hover {
+    color: #125092;
+  }
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .username-edit {
+    display: flex;
+    flex-direction: row;
+  }
+  .posts-section {
+    width: 100%; 
+    text-align: center; 
+    margin-top: 20px; 
+  }
+  
+  .posts-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .posts-heading {
+    font-size: 24px; 
+    color: #333; 
+    margin-right: 10px; 
+  }
+  
+  .add-post-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%; 
+    color: rgb(44, 43, 43); 
+    font-size: 22px; 
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .add-post-button:hover {
+    background-color: rgb(185, 185, 185);
+  }
+  
+  .posts-line {
+    width: 100%;
+    height: 2px;
+    background-color: #ccc;
+  }
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 10px;
+    padding: 10px;
+  }
+  
+  .post-item {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: #f3f3f3;
+  }
+  .no-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee; 
+    color: #666;
+    font-size: 16px;
+    height: 100%;
+  }
+  .delete-post-button {
+    border: none;
+  }

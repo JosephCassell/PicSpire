@@ -58,8 +58,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
       profilePicture: {
-        type: DataTypes.STRING,
-        defaultValue: "default_profile_picture_url"
+        type: DataTypes.STRING
       },
       hashedPassword: {
         type: DataTypes.STRING.BINARY,

@@ -23,10 +23,7 @@ module.exports = {
         onDelete: 'SET NULL'
       },
       caption: {
-        type: Sequelize.STRING
-      },
-      image_url: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(300),
       },
       createdAt: {
         allowNull: false,

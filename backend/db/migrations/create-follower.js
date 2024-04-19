@@ -12,7 +12,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      follower_id: {
+      user_follower_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Users',

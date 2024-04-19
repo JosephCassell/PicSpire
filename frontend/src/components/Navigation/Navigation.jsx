@@ -4,27 +4,20 @@ import ProfileButton from '../ProfileButton/ProfileButton';
 import './Navigation.css';
 
 function Navigation({ isLoaded }){
-  const sessionUser = useSelector(state => state.session.user);
-
+  const sessionUser = useSelector(state => state.session.currentUser);
   const sessionLinks = sessionUser ? (
-    <li>
-      <ProfileButton user={sessionUser} />
-    </li>
+    <><ProfileButton user={sessionUser} /></>
   ) : (
-    <>
-      <li>
-        <NavLink to="/login">Log In</NavLink>
-      </li>
-      <li>
-        <NavLink to="/signup">Sign Up</NavLink>
-      </li>
-    </>
+    <div className="auth-links">
+      <div className='login'><NavLink to="/login">Log in</NavLink></div>
+      <div className='signup'><NavLink to="/signup">Sign up</NavLink></div>
+    </div>
   );
-
   return (
-    <ul>
-      <li>
-        <NavLink to="/">Home</NavLink>
+    <ul className="navbar">
+      <li className="logo">
+        <img src="../../../public/favicon.ico" alt="PicSpire Logo" />
+        <NavLink to="/">PicSpire</NavLink>
       </li>
       {isLoaded && sessionLinks}
     </ul>

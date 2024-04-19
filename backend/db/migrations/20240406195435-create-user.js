@@ -33,13 +33,12 @@ module.exports = {
         allowNull: false
       },
       bio: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(150),
         allowNull: true
       },
       profilePicture: {
         type: Sequelize.STRING,
         allowNull: true,
-        defaultValue: 'default_profile_picture_url'
       },
       hashedPassword: {
         type: Sequelize.STRING.BINARY,

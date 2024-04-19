@@ -22,11 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       }
     },
-    caption: DataTypes.STRING,
-    image_url: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
+    caption: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Post',

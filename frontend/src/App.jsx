@@ -5,7 +5,8 @@ import LoginFormPage from './components/LoginFormPage/LoginFormPage';
 import SignupFormPage from './components/SignupFormPage/SignupFormPage';
 import Navigation from './components/Navigation/Navigation';
 import * as sessionActions from './store/session';
-
+import LandingPage from './components/LandingPage/LandingPage';
+import ProfilePage from './components/ProfilePage/ProfilePage';
 function Layout() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <h1>Welcome!</h1>
+        element: <LandingPage />
       },
       {
         path: "login",
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignupFormPage />
+      },
+      {
+        path: ":username/profile",
+        element: <ProfilePage />
       }
     ]
   }
