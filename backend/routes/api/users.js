@@ -102,7 +102,7 @@ router.get('/:username', async (req, res) => {
     const { username } = req.params;
     const user = await User.findOne({
       where: { username },
-      attributes: ['id', 'username', 'email', 'firstName', 'lastName'] 
+      attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'bio'] 
     });
 
     if (!user) {

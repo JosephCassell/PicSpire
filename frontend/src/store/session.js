@@ -100,7 +100,6 @@ export const getUserProfile = (username) => async (dispatch) => {
   dispatch(requestStart());
   try {
     const response = await csrfFetch(`/api/users/${username}`);
-    console.log('username', username)
     if (response.ok) {
       const data = await response.json();
       dispatch(setViewedUser(data));

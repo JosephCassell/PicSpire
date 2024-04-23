@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createPost } from '../../store/posts';
 import './AddPostModal.css';
-const AddPostModal = ({ userId, show, onClose }) => {
+const AddPostModal = ({ show, onClose }) => {
   const [caption, setCaption] = useState('');
   const dispatch = useDispatch();
 

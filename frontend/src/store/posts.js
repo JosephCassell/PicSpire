@@ -4,6 +4,12 @@ const REQUEST_START = 'posts/requestStart';
 const REQUEST_FAIL = 'posts/requestFail';
 const ADD_POST = 'posts/addPost';
 const DELETE_POST = 'posts/deletePost';
+const UPDATE_POST = 'posts/updatePost';
+
+const updatePost = (post) => ({
+  type: UPDATE_POST,
+  payload: post
+});
 
 const setPosts = (posts) => ({
   type: GET_POSTS,
@@ -60,8 +66,6 @@ export const createPost = (caption) => async (dispatch, getState) => {
     dispatch(requestFail(error.message));
   }
 };
-
-
 // Delete a post
 export const removePost = (postId) => async (dispatch) => {
   dispatch(requestStart());
@@ -94,7 +98,36 @@ export const fetchPosts = (userId) => async (dispatch) => {
       dispatch(requestFail(error.message));
     }
   };
+// Update a post
+export const editPost = (postId, caption) => async (dispatch, getState) => {
+  dispatch(requestStart());
+  const { session: { currentUser } } = getState();
 
+  if (!currentUser) {
+    dispatch(requestFail('No authenticated user.'));
+    return;
+  }
+
+  try {
+    const response = await csrfFetch(`/api/posts/${postId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ caption })
+    });
+
+    if (response.ok) {
+      const updatedPost = await response.json();
+      dispatch(updatePost(updatedPost));
+    } else {
+      const errorData = await response.json();
+      throw new Error(`Failed to update post: ${errorData.message || 'Unknown error'}`);
+    }
+  } catch (error) {
+    dispatch(requestFail(error.message));
+  }
+};
   const initialState = {
     currentUser: null,
     isLoading: false,
@@ -114,6 +147,8 @@ export const fetchPosts = (userId) => async (dispatch) => {
         return { ...state, posts: [...state.posts, action.payload], isLoading: false };
       case DELETE_POST:
         return { ...state, posts: state.posts.filter(post => post.id !== action.payload), isLoading: false };
+      case UPDATE_POST:
+        return {...state, posts: state.posts.map(post => post.id === action.payload.id ? action.payload : post), isLoading: false};
       default:
         return state;
     }

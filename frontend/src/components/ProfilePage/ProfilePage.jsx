@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { getUserProfile, fetchFollowers, fetchFollowing } from '../../store/session';
-import { fetchPosts, removePost} from '../../store/posts';
+import { fetchPosts, removePost, editPost} from '../../store/posts';
 import AddPostModal from '../AddPostModal/AddPostModal';
+import EditPostModal from '../EditPostModal/EditPostModal';
+import PostModal from '../PostModal/PostModal'; 
 import './ProfilePage.css';
 
 function ProfilePage() {
@@ -11,18 +13,25 @@ function ProfilePage() {
     const { username } = useParams();
     const [deletePostId, setDeletePostId] = useState(null);
     const [showAddPostModal, setShowAddPostModal] = useState(false);
+    const [currentPost, setCurrentPost] = useState(null);
+    const [showPostModal, setShowPostModal] = useState(false);
+    const [editPostId, setEditPostId] = useState(null);
+    const [showEditPostModal, setShowEditPostModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editablePost, setEditablePost] = useState(null);
+
     const { currentUser, followersCount, followingCount, posts, viewedUser
     } = useSelector(state => ({
       ...state.session,
       posts: state.posts.posts
     }));
+
     useEffect(() => {
       if (username) {
-        const st = dispatch(getUserProfile(username));
-        console.log('username', st)
+       dispatch(getUserProfile(username));
       }
     }, [dispatch, username]);
-    //console.log('curr', currentUser)
+
     useEffect(() => {
       if (viewedUser && viewedUser.id) {
         dispatch(fetchFollowers(viewedUser.id));
@@ -44,6 +53,38 @@ function ProfilePage() {
         setDeletePostId(null);
       }
     };
+    const openPostModal = (post) => {
+      setCurrentPost(post);
+      setShowPostModal(true);
+    };
+
+    const closePostModal = () => {
+      setShowPostModal(false);
+      setCurrentPost(null);
+    };
+
+    
+    const openEditModal = (post) => {
+      setEditablePost(post);
+      setShowEditModal(true);
+    };
+
+    const closeEditModal = () => {
+      setShowEditModal(false);
+      setEditablePost(null);
+    };
+
+    const handleSaveChanges = (postId, newCaption) => {
+      dispatch(editPost(postId, newCaption))
+        .then(() => {
+          console.log('Post updated successfully');
+          closeEditModal();
+        })
+        .catch(error => {
+          console.error('Failed to update post:', error);
+        });
+    };
+    
     if (!viewedUser) {
       return <div>No user data available.</div>;
     }
@@ -99,11 +140,22 @@ function ProfilePage() {
           <div className="posts-line"></div>
           <div className="posts-grid">
             {posts.map((post) => (
-              <div key={post.id} className="post-item">
+              <div key={post.id} className="post-item" onClick={() => openPostModal(post)}>
                 {isCurrentUser && (
-                  <button onClick={() => handleOpenModal(post.id)} className="delete-post-button">
-                    X
-                  </button>
+                  <>
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      openEditModal(post);
+                    }} className="edit-post-button">
+                      Edit
+                    </button>
+                    <button onClick={(e) => {
+                      e.stopPropagation(); 
+                      handleOpenModal(post.id);
+                    }} className="delete-post-button">
+                      Delete
+                    </button>
+                  </>
                 )}
                 {post.imageUrl ? (
                   <img src={post.imageUrl} alt={post.caption || "No caption"} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -115,10 +167,19 @@ function ProfilePage() {
               </div>
             ))}
           </div>
+          {showEditModal && editablePost && (
+            <EditPostModal
+              post={editablePost}
+              show={showEditModal}
+              onClose={closeEditModal}
+              onSubmit={handleSaveChanges}
+            />
+          )}
+          {showPostModal && <PostModal post={currentPost} onClose={closePostModal} />}
         </div>
         {deletePostId && (
-          <div className="modal">
-            <div className="modal-content">
+          <div className="delete-modal">
+            <div className="delete-modal-content">
               <h2>Are you sure you want to delete your post?</h2>
               <button type="button" onClick={handleDeletePost}>Delete my post</button>
               <button type="button" onClick={handleCloseModal}>Keep my post</button>
