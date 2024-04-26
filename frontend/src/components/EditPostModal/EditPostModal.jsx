@@ -41,7 +41,7 @@ function EditPostModal({ post, show, onClose, onSubmit }) {
     e.preventDefault();
     const formData = new FormData();
     formData.append('caption', captionRef.current);
-    imagesRef.current.forEach((image, index) => {
+    imagesRef.current.forEach((image) => {
       if (image.file) {
         formData.append(`images`, image.file);
       }

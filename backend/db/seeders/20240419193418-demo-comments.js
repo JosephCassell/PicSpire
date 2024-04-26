@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Comments', [{
+    await queryInterface.bulkCreate('Comments', [{
       post_id: 1,
       parent_comment_id: null,
       user_id: 1,

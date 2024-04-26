@@ -264,11 +264,11 @@ const sessionReducer = (state = initialState, action) => {
       return { ...state, following: action.payload, followingCount: action.payload.length };
     case ADD_FOLLOWING:
       return { ...state, followers: [...state.followers, action.payload], followersCount: state.followersCount + 1 };
-    case REMOVE_FOLLOWING:
+    case REMOVE_FOLLOWING: 
       return { ...state, followers: state.followers.filter(f => f.id !== action.payload), followersCount: state.followersCount - 1 };
-    case SET_PROFILE_PICTURE:
+    case SET_PROFILE_PICTURE: {
       const userToUpdate = state.currentUser && state.currentUser.id === state.viewedUser?.id ? 'currentUser' : 'viewedUser';
-      return {...state,[userToUpdate]: { ...state[userToUpdate], profilePicture: action.payload }, isLoading: false};
+      return {...state,[userToUpdate]: { ...state[userToUpdate], profilePicture: action.payload }, isLoading: false}}
     default:
       return state;
   }

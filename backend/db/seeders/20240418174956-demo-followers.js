@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Followers', [
+    await queryInterface.bulkCreate('Followers', [
       { user_follower_id: 1, followed_id: 2, createdAt: new Date(), updatedAt: new Date() },
       { user_follower_id: 1, followed_id: 3, createdAt: new Date(), updatedAt: new Date() },
       { user_follower_id: 2, followed_id: 1, createdAt: new Date(), updatedAt: new Date() },
