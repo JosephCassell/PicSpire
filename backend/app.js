@@ -1,4 +1,6 @@
 const express = require('express');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 require('express-async-errors');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -15,6 +17,7 @@ const app = express();
 app.use(morgan('dev'));
 
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // Security Middleware

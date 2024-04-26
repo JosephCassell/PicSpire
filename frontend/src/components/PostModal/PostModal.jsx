@@ -14,13 +14,20 @@ const PostModal = ({ post, onClose }) => {
   const [replyText, setReplyText] = useState({});
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingText, setEditingText] = useState("");
-  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   useEffect(() => {
     if (post) {
       dispatch(fetchComments(post.id));
     }
   }, [dispatch, post, replyBoxVisibleFor]);
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % post.images.length);
+  };
 
+  const handlePreviousImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + post.images.length) % post.images.length);
+  };
   const toggleRepliesVisibility = (commentId) => {
     setVisibleReplies(prev => ({
       ...prev,
@@ -128,37 +135,37 @@ const PostModal = ({ post, onClose }) => {
   
   const handleReplySubmit = (event, commentId) => {
     event.preventDefault();
-    console.log("Submitting reply for comment ID:", commentId);
-    console.log("Reply text:", replyText[commentId]);
     if (replyText[commentId].trim()) {
       dispatch(createComment({ postId: post.id, parentCommentId: commentId, text: replyText[commentId] }));
       setReplyText({ ...replyText, [commentId]: '' });
       setReplyBoxVisibleFor(null);
-      console.log("Submitting reply for comment ID:", commentId);
-      console.log("Reply text:", replyText[commentId]);
     }
-  };
-  const handleReplyToComment = (parentId) => {
-    setParentCommentId(parentId);
   };
 
-  const handleKeyDown = (event, commentId) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      handleReplySubmit(event, commentId);
-    }
-  };
   const handleBackdropClick = () => {
     onClose();
   };
+  const renderImages = () => {
+    if (!post.images.length) return;
+    const imageUrl = post.images[currentImageIndex].image_url;
+    return (
+      <div className="image-gallery">
+        {post.images.length > 1 && <button onClick={handlePreviousImage} className="image-nav-button left">&lt;</button>}
+        <img src={imageUrl} className="post-image" alt={`Post image ${currentImageIndex + 1}`} />
+        {post.images.length > 1 && <button onClick={handleNextImage} className="image-nav-button right">&gt;</button>}
+      </div>
+    );
+  };
   
+
   return (
     <div className="post-modal-backdrop" onClick={handleBackdropClick}>
       <div className="post-modal-wrapper" onClick={(e) => e.stopPropagation()}>
         <div className="post-modal-content">
-          {post.imageUrl && <img src={post.imageUrl} alt={post.caption} className="post-image" />}
-          <div className='Post-name'></div>
           <div className="post-caption">{post.caption}</div>
+          <div className="image-gallery">{renderImages()}</div>
           <div className="comments-section">
+            {isLoading ? <p>Loading comments...</p> : renderComments(comments)}
             <form onSubmit={handleCommentSubmit} className="comment-form">
               <div className="comment-input-wrapper">
                 <textarea
@@ -170,11 +177,10 @@ const PostModal = ({ post, onClose }) => {
                 <button type="submit" className='post-button'>Post</button>
               </div>
             </form>
-            {isLoading ? <p>Loading comments...</p> : renderComments(comments)}
           </div>
         </div>
       </div>
     </div>
   );
-}  
+}
 export default PostModal;

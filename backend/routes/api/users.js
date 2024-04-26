@@ -5,7 +5,7 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User, Follower } = require('../../db/models');
-
+const { singleFileUpload, singleMulterUpload, multipleFilesUpload, multipleMulterUpload, retrievePrivateFile } = require("../../awsS3");
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
@@ -102,7 +102,7 @@ router.get('/:username', async (req, res) => {
     const { username } = req.params;
     const user = await User.findOne({
       where: { username },
-      attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'bio'] 
+      attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'bio', 'profilePicture'] 
     });
 
     if (!user) {
@@ -112,6 +112,34 @@ router.get('/:username', async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Route to upload/update user profile picture
+router.patch('/:userId/profile-picture', requireAuth, singleMulterUpload('profilePicture'), async (req, res) => {
+  const { userId } = req.params;
+  const { id: user_id } = req.user;
+
+  if (parseInt(userId) !== user_id) {
+    return res.status(403).json({ message: 'You do not have permission to update this profile.' });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (req.file) {
+      const imageUrl = await singleFileUpload({ file: req.file, public: true });
+      user.profilePicture = imageUrl;
+      await user.save();
+      res.status(200).json({ message: 'Profile picture updated successfully', profilePicture: imageUrl });
+    } else {
+      res.status(400).json({ message: 'No image file provided' });
+    }
+  } catch (error) {
+    console.error('Error updating profile picture:', error);
+    res.status(500).json({ message: 'Error updating profile picture', error: error.message });
   }
 });
 

@@ -4,56 +4,73 @@ const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
-const { User, Post, Comment } = require('../../db/models');
-
+const { User, Post, Image, Follower } = require('../../db/models');
+const { multipleFilesUpload, multipleMulterUpload, retrievePrivateFile } = require("../../awsS3");
 // Get post by user id
 router.get('/user/:userId', async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const posts = await Post.findAll({
-            where: {
-                user_id: userId
-            },
-            order: [
-                ['createdAt', 'DESC']
-            ]
-        });
+  try {
+    const posts = await Post.findAll({
+      where: { user_id: req.params.userId },
+      include: [{
+        model: Image,
+        as: 'images',
+        attributes: ['image_url']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
 
-        if (!posts) {
-            return res.status(404).send({ message: 'No posts found for this user.' });
-        }
-
-        res.status(200).json(posts);
-    } catch (error) {
-        res.status(500).send({
-            message: 'Error retrieving posts',
-            error: error.message
-        });
-    }
+    res.json(posts);
+  } catch (error) {
+    res.status(500).send('Failed to fetch posts');
+  }
 });
 // Create a post
-router.post('/', requireAuth, async (req, res) => {
-    const { caption } = req.body;
-    const { id: user_id } = req.user; 
-  
-    try {
-      const post = await Post.create({
-        user_id,
-        caption
-      });
-      console.log('Post created successfully:', post);
-      res.status(201).json(post);
-    } catch (error) {
-      console.error('Error creating post:', error);
-      res.status(500).send({
-        message: 'Error creating post',
-        error: error.message
-      });
+router.post('/', requireAuth, multipleMulterUpload('images'), async (req, res) => {
+  const { caption } = req.body;
+  const { id: user_id } = req.user;
+  console.log('req', req.files) 
+  if ((req.files && req.files.length === 0) && !caption) {
+    return res.status(400).send({
+      message: 'A caption or at least one image is required to create a post.'
+    });
+  }
+
+  try {
+    const post = await Post.create({
+      user_id,
+      caption
+    });
+
+    if (req.files && req.files.length > 0) {
+      const imageUrls = await multipleFilesUpload({ files: req.files, public: true });
+      await Promise.all(imageUrls.map(url => 
+        Image.create({
+          imageable_id: post.id,
+          imageable_type: 'post',
+          image_url: url
+        })
+      ));
     }
-  });
-  
-  // Delete a post
-  router.delete('/:postId', requireAuth, async (req, res) => {
+    const resultPost = await Post.findByPk(post.id, {
+      include: [{
+        model: Image,
+        as: 'images',
+        attributes: ['image_url']
+      }]
+    });
+
+    console.log('Post created successfully:', resultPost);
+    res.status(201).json(resultPost);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).send({
+      message: 'Error creating post',
+      error: error.message
+    });
+  }
+});
+// Delete a post
+router.delete('/:postId', requireAuth, async (req, res) => {
     const postId = req.params.postId;
   
     try {
@@ -76,34 +93,97 @@ router.post('/', requireAuth, async (req, res) => {
             error: error.message
         });
     }
-  });  
+});  
 // Edit a post
-router.patch('/:postId', requireAuth, async (req, res) => {
-    const { postId } = req.params;
-    const { caption } = req.body;
-  
-    try {
-      const post = await Post.findOne({
-        where: {
-          id: postId,
-          user_id: req.user.id 
-        }
-      });
-  
-      if (!post) {
-        return res.status(404).send({ message: 'Post not found or you do not have permission to edit it.' });
-      }
-  
-      post.caption = caption;
-      await post.save(); 
-  
-      res.status(200).json(post);
-    } catch (error) {
-      res.status(500).send({
-        message: 'Error updating post',
-        error: error.message
-      });
+router.patch('/:postId', requireAuth, multipleMulterUpload('images'), async (req, res) => {
+  const { postId } = req.params;
+  const { caption, removedImages } = req.body; 
+  const { id: user_id } = req.user;
+  console.log('req.body', req.body);
+  console.log('req.files', req.files);
+  try {
+    const post = await Post.findOne({
+      where: { id: postId, user_id },
+      include: [{
+        model: Image,
+        as: 'images'
+      }]
+    });
+
+    if (!post) {
+      return res.status(404).send({ message: 'Post not found or you do not have permission to edit it.' });
     }
-  });
-  
+
+    if (caption) post.caption = caption;
+
+    if (removedImages) {
+      const imagesToRemove = JSON.parse(removedImages);
+      await Promise.all(imagesToRemove.map(imageUrl => 
+        Image.destroy({ where: { image_url: imageUrl, imageable_id: post.id } })
+      ));
+    }
+
+    if (req.files && req.files.length > 0) {
+      const imageUrls = await multipleFilesUpload({ files: req.files, public: true });
+      await Promise.all(imageUrls.map(url => 
+        Image.create({
+          imageable_id: post.id,
+          imageable_type: 'post',
+          image_url: url
+        })
+      ));
+    }
+
+    await post.save();
+
+    const updatedPost = await Post.findByPk(post.id, {
+      include: [{
+        model: Image,
+        as: 'images',
+        attributes: ['image_url']
+      }]
+    });
+
+    console.log('Post updated successfully:', updatedPost);
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error('Error updating post:', error);
+    res.status(500).send({ message: 'Error updating post', error: error.message });
+  }
+});
+// Get all posts from people the user follows
+router.get('/feed/:userId', async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'username', 'firstName', 'lastName', 'profilePicture'],
+        include: [{
+          model: Follower,
+          as: 'followers',
+          attributes: [],
+          where: { followed_id: req.params.userId },
+          include: [{
+            model: User,
+            as: 'user_followers',
+            attributes: [],
+          }]
+        }]
+      }, {
+        model: Image,
+        as: 'images',
+        attributes: ['image_url']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Failed to fetch feed', error);
+    res.status(500).send('Failed to fetch feed');
+  }
+});
+
+
 module.exports = router;

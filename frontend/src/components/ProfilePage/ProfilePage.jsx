@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getUserProfile, fetchFollowers, fetchFollowing } from '../../store/session';
+import { getUserProfile, fetchFollowers, fetchFollowing, uploadProfilePicture } from '../../store/session';
 import { fetchPosts, removePost, editPost} from '../../store/posts';
 import AddPostModal from '../AddPostModal/AddPostModal';
 import EditPostModal from '../EditPostModal/EditPostModal';
@@ -15,22 +15,21 @@ function ProfilePage() {
     const [showAddPostModal, setShowAddPostModal] = useState(false);
     const [currentPost, setCurrentPost] = useState(null);
     const [showPostModal, setShowPostModal] = useState(false);
-    const [editPostId, setEditPostId] = useState(null);
-    const [showEditPostModal, setShowEditPostModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editablePost, setEditablePost] = useState(null);
-
     const { currentUser, followersCount, followingCount, posts, viewedUser
     } = useSelector(state => ({
       ...state.session,
       posts: state.posts.posts
     }));
-
     useEffect(() => {
       if (username) {
        dispatch(getUserProfile(username));
       }
     }, [dispatch, username]);
+    useEffect(() => {
+      document.body.classList.toggle('modal-open', showAddPostModal || showPostModal || showEditModal);
+    }, [showAddPostModal, showPostModal, showEditModal]);
 
     useEffect(() => {
       if (viewedUser && viewedUser.id) {
@@ -74,11 +73,11 @@ function ProfilePage() {
       setEditablePost(null);
     };
 
-    const handleSaveChanges = (postId, newCaption) => {
-      dispatch(editPost(postId, newCaption))
+    const handleSaveChanges = (postId, formData) => {
+      dispatch(editPost(postId, formData))
         .then(() => {
-          console.log('Post updated successfully');
           closeEditModal();
+          dispatch(fetchPosts(viewedUser.id));
         })
         .catch(error => {
           console.error('Failed to update post:', error);
@@ -89,17 +88,24 @@ function ProfilePage() {
       return <div>No user data available.</div>;
     }
     const isCurrentUser = currentUser && viewedUser && currentUser.id === viewedUser.id;
+    const handleProfilePicUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        dispatch(uploadProfilePicture(viewedUser.id, file));
+      }
+    };
     
     return (
       <div className="profile-page">
         <div className="profile-content">
           <div className="profile-detail">
             {viewedUser.profilePicture ? (
-              <img src={viewedUser.profilePicture} alt="Profile" />
-            ) : (
-              <div className="profile-picture-placeholder"></div>
-            )}
-          </div>
+               <img src={viewedUser.profilePicture} alt="Profile" onClick={() => document.getElementById('profilePicUpload').click()} />
+              ) : (
+                <div className="profile-picture-placeholder" onClick={() => document.getElementById('profilePicUpload').click()}></div>
+              )}
+              <input type="file" id="profilePicUpload" style={{ display: 'none' }} onChange={handleProfilePicUpload} accept="image/*" />
+            </div>
           <div className="user-info">
             <div className='username-edit'>
               <h1 className='profile-username'>{viewedUser.username}</h1>
@@ -140,7 +146,16 @@ function ProfilePage() {
           <div className="posts-line"></div>
           <div className="posts-grid">
             {posts.map((post) => (
-              <div key={post.id} className="post-item" onClick={() => openPostModal(post)}>
+              <div 
+              key={post.id} 
+              className={`post-item ${post.images && post.images.length > 0 ? 'with-image' : 'without-image'}`} 
+              onClick={() => openPostModal(post)}
+              >
+                {post.caption && (
+                  <div className="caption-only">
+                    {post.caption}
+                  </div>
+                )}
                 {isCurrentUser && (
                   <>
                     <button onClick={(e) => {
@@ -157,12 +172,10 @@ function ProfilePage() {
                     </button>
                   </>
                 )}
-                {post.imageUrl ? (
-                  <img src={post.imageUrl} alt={post.caption || "No caption"} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div className="caption-only">
-                    {post.caption || "No caption provided"}
-                  </div>
+                {post.images && post.images.length > 0 && (
+                  <img
+                  src={post.images[0].image_url}
+                />
                 )}
               </div>
             ))}
