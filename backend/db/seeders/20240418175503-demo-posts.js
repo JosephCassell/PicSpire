@@ -65,7 +65,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        user_id: 3,
+        user_id: 4,
         caption: 'Only post for User 3!',
         createdAt: new Date(),
         updatedAt: new Date()

@@ -177,7 +177,6 @@ router.get('/feed/:userId', async (req, res) => {
       }],
       order: [['createdAt', 'DESC']]
     });
-
     res.json(posts);
   } catch (error) {
     console.error('Failed to fetch feed', error);

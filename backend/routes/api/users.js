@@ -67,14 +67,20 @@ router.get('/:userId/followers', async (req, res) => {
         attributes: ['id', 'username']
       }
     });
+    const followersData = user_followers.map(f => ({
+      ...f.user_followers.dataValues,
+      followerId: f.dataValues.user_follower_id
+    }));
     res.json({
-      count: user_followers.length,
-      followers: user_followers.map(f => f.userFollowers)
+      count: followersData.length,
+      followers: followersData
     });
   } catch (error) {
+    console.error('Error fetching followers:', error); 
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Route to get all users a user is following
 router.get('/:userId/following', async (req, res) => {
@@ -140,6 +146,61 @@ router.patch('/:userId/profile-picture', requireAuth, singleMulterUpload('profil
   } catch (error) {
     console.error('Error updating profile picture:', error);
     res.status(500).json({ message: 'Error updating profile picture', error: error.message });
+  }
+});
+
+// Follow a user
+router.post('/follow', requireAuth, async (req, res) => {
+  const userId = req.user.id; 
+  const { followedId } = req.body;
+
+  try {
+    if (userId === followedId) {
+      return res.status(400).json({ error: "You cannot follow yourself." });
+    }
+
+    const existingFollow = await Follower.findOne({
+      where: {
+        user_follower_id: userId,
+        followed_id: followedId
+      }
+    });
+
+    if (existingFollow) {
+      return res.status(409).json({ error: "You are already following this user." });
+    }
+
+    const newFollow = await Follower.create({
+      user_follower_id: userId,
+      followed_id: followedId
+    });
+
+    return res.status(201).json(newFollow);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Unfollow a user
+router.delete('/unfollow', requireAuth, async (req, res) => {
+  const userId = req.user.id;
+  const { followedId } = req.body;
+
+  try {
+    const follow = await Follower.findOne({
+      where: {
+        user_follower_id: userId,
+        followed_id: followedId
+      }
+    });
+
+    if (!follow) {
+      return res.status(404).json({ error: "You are not following this user." });
+    }
+    await follow.destroy();
+
+    res.status(200).json({ message: "You have unfollowed the user successfully." });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
