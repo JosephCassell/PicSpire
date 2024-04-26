@@ -76,6 +76,10 @@
 .comment-profile-name{
   font-weight: bold;
   margin-right: 5px;
+  cursor: pointer;
+}
+.comment-profile-name:hover {
+  color: #007bff;
 }
 .comment-actions { 
   text-align: left; 

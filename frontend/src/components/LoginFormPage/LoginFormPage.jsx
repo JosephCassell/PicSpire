@@ -21,7 +21,7 @@ function LoginFormPage() {
     setErrors({});
     dispatch(sessionActions.login({ credential, password }))
       .then(() => {
-        navigate(`/${sessionUser.username}/profile`); 
+        navigate(`/feed`); 
       })
       .catch(async (res) => {
         const data = await res.json();

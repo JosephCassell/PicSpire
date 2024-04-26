@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getUserProfile, fetchFollowers, fetchFollowing, uploadProfilePicture } from '../../store/session';
+import { getUserProfile, fetchFollowers, fetchFollowing, uploadProfilePicture, followUser, unfollowUser } from '../../store/session';
 import { fetchPosts, removePost, editPost} from '../../store/posts';
 import AddPostModal from '../AddPostModal/AddPostModal';
 import EditPostModal from '../EditPostModal/EditPostModal';
@@ -17,10 +17,11 @@ function ProfilePage() {
     const [showPostModal, setShowPostModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editablePost, setEditablePost] = useState(null);
-    const { currentUser, followersCount, followingCount, posts, viewedUser
+    const { currentUser, followersCount, followingCount, posts, viewedUser, followers 
     } = useSelector(state => ({
       ...state.session,
-      posts: state.posts.posts
+      posts: state.posts.posts,
+      followers: state.session.followers.map(user => user.id)
     }));
     useEffect(() => {
       if (username) {
@@ -30,7 +31,7 @@ function ProfilePage() {
     useEffect(() => {
       document.body.classList.toggle('modal-open', showAddPostModal || showPostModal || showEditModal);
     }, [showAddPostModal, showPostModal, showEditModal]);
-
+    
     useEffect(() => {
       if (viewedUser && viewedUser.id) {
         dispatch(fetchFollowers(viewedUser.id));
@@ -45,7 +46,28 @@ function ProfilePage() {
     const handleCloseModal = () => {
       setDeletePostId(null);
     };
-  
+    const handleFollowClick = () => {
+      if (followers.includes(currentUser.id)) {
+        dispatch(unfollowUser(currentUser.id, viewedUser.id));
+        window.location.reload()
+      } else {
+        dispatch(followUser(currentUser.id, viewedUser.id));
+        window.location.reload()
+      }
+    };
+    
+    const followButton = () => {
+      if (currentUser && viewedUser && currentUser.id !== viewedUser.id) {
+        const isFollowing = followers.includes(currentUser.id);
+        const buttonClass = isFollowing ? "unfollow" : "follow";
+        return (
+          <button className={`follow-button ${buttonClass}`} onClick={handleFollowClick}>
+            {isFollowing ? 'Unfollow' : 'Follow'}
+          </button>
+        );
+      }
+      return null;
+    };
     const handleDeletePost = () => {
       if (deletePostId) {
         dispatch(removePost(deletePostId));
@@ -98,17 +120,34 @@ function ProfilePage() {
     return (
       <div className="profile-page">
         <div className="profile-content">
-          <div className="profile-detail">
-            {viewedUser.profilePicture ? (
-               <img src={viewedUser.profilePicture} alt="Profile" onClick={() => document.getElementById('profilePicUpload').click()} />
-              ) : (
-                <div className="profile-picture-placeholder" onClick={() => document.getElementById('profilePicUpload').click()}></div>
-              )}
-              <input type="file" id="profilePicUpload" style={{ display: 'none' }} onChange={handleProfilePicUpload} accept="image/*" />
-            </div>
+        <div className="profile-detail">
+          {viewedUser.profilePicture ? (
+            <img
+              src={viewedUser.profilePicture}
+              alt="Profile"
+              className={isCurrentUser ? "profile-picture-clickable" : ""}
+              onClick={isCurrentUser ? () => document.getElementById('profilePicUpload').click() : null}
+            />
+          ) : (
+            <div
+              className={`profile-picture-placeholder ${isCurrentUser ? "profile-picture-placeholder-clickable" : ""}`}
+              onClick={isCurrentUser ? () => document.getElementById('profilePicUpload').click() : null}
+            ></div>
+          )}
+          {isCurrentUser && (
+            <input
+              type="file"
+              id="profilePicUpload"
+              style={{ display: 'none' }}
+              onChange={handleProfilePicUpload}
+              accept="image/*"
+            />
+          )}
+        </div>
           <div className="user-info">
             <div className='username-edit'>
               <h1 className='profile-username'>{viewedUser.username}</h1>
+              {followButton()}
               {isCurrentUser && (
                 <button className="edit-profile-button">Edit</button>
               )}
@@ -191,11 +230,11 @@ function ProfilePage() {
           {showPostModal && <PostModal post={currentPost} onClose={closePostModal} />}
         </div>
         {deletePostId && (
-          <div className="delete-modal">
-            <div className="delete-modal-content">
+          <div className="delete-modal-backdrop" onClick={handleCloseModal}>
+            <div className="delete-modal-content" onClick={(e) => e.stopPropagation()}>
               <h2>Are you sure you want to delete your post?</h2>
-              <button type="button" onClick={handleDeletePost}>Delete my post</button>
-              <button type="button" onClick={handleCloseModal}>Keep my post</button>
+              <button type="button" className='deletePost-button' onClick={handleDeletePost}>Delete my post</button>
+              <button type="button" className='keepPost-button' onClick={handleCloseModal}>Keep my post</button>
             </div>
           </div>
         )}

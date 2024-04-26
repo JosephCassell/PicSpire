@@ -8,13 +8,18 @@ const REQUEST_FAIL = "session/requestFail";
 const GET_FOLLOWERS = 'session/getFollowers';
 const GET_FOLLOWING = 'session/getFollowing';
 const SET_PROFILE_PICTURE = 'session/updateUserProfilePicture';
+const ADD_FOLLOWING = 'session/addFollowing'
+const REMOVE_FOLLOWING = 'session/removeFollowing'
+
 const requestStart = () => ({
   type: REQUEST_START
 });
+
 export const updateUserProfilePicture = (imageUrl) => ({
   type: SET_PROFILE_PICTURE,
   payload: imageUrl,
 });
+
 const requestFail = (error) => ({
   type: REQUEST_FAIL,
   error
@@ -42,6 +47,24 @@ const setFollowing = (following) => ({
 
 const removeUser = () => ({
   type: REMOVE_USER
+});
+
+export const logout = () => async (dispatch) => {
+  const response = await csrfFetch('/api/session', {
+    method: 'DELETE'
+  });
+  dispatch(removeUser());
+  return response;
+};
+
+const addFollowing = (user) => ({
+  type: ADD_FOLLOWING,
+  payload: user
+});
+
+const removeFollowing = (userId) => ({
+  type: REMOVE_FOLLOWING,
+  payload: userId
 });
 
 export const login = (user) => async (dispatch) => {
@@ -138,12 +161,13 @@ export const getUserProfile = (username) => async (dispatch) => {
 };
 
 
-// Fetch a user's followers
+// Get a user's followers
 export const fetchFollowers = (userId) => async (dispatch) => {
   try {
-    const response = await fetch(`/api/users/${userId}/followers`);
+    const response = await csrfFetch(`/api/users/${userId}/followers`);
     if (response.ok) {
       const data = await response.json();
+      console.log('data',data.followers)
       dispatch(setFollowers(data.followers));
     } else {
       throw new Error('Failed to fetch followers');
@@ -153,10 +177,10 @@ export const fetchFollowers = (userId) => async (dispatch) => {
   }
 };
 
-// Fetch who a user follows
+// Get a user who follows
 export const fetchFollowing = (userId) => async (dispatch) => {
   try {
-    const response = await fetch(`/api/users/${userId}/following`);
+    const response = await csrfFetch(`/api/users/${userId}/following`);
     if (response.ok) {
       const data = await response.json();
       dispatch(setFollowing(data.following));
@@ -167,13 +191,49 @@ export const fetchFollowing = (userId) => async (dispatch) => {
     console.error(error);
   }
 };
-export const logout = () => async (dispatch) => {
-  const response = await csrfFetch('/api/session', {
-    method: 'DELETE'
-  });
-  dispatch(removeUser());
-  return response;
+// Follow a user
+export const followUser = (userId, followedId) => async (dispatch) => {
+  try {
+    const response = await csrfFetch(`/api/users/follow`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ followedId }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(addFollowing(data));
+    } else {
+      throw new Error('Failed to follow user');
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
+
+// Unfollow a user
+export const unfollowUser = (userId, followedId) => async (dispatch) => {
+  try {
+    const response = await csrfFetch(`/api/users/unfollow`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ followedId }),
+    });
+
+    if (response.ok) {
+      dispatch(removeFollowing(followedId));
+    } else {
+      throw new Error('Failed to unfollow user');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 
 const initialState = {
   currentUser: null,
@@ -202,6 +262,10 @@ const sessionReducer = (state = initialState, action) => {
       return { ...state, followers: action.payload, followersCount: action.payload.length };
     case GET_FOLLOWING:
       return { ...state, following: action.payload, followingCount: action.payload.length };
+    case ADD_FOLLOWING:
+      return { ...state, followers: [...state.followers, action.payload], followersCount: state.followersCount + 1 };
+    case REMOVE_FOLLOWING:
+      return { ...state, followers: state.followers.filter(f => f.id !== action.payload), followersCount: state.followersCount - 1 };
     case SET_PROFILE_PICTURE:
       const userToUpdate = state.currentUser && state.currentUser.id === state.viewedUser?.id ? 'currentUser' : 'viewedUser';
       return {...state,[userToUpdate]: { ...state[userToUpdate], profilePicture: action.payload }, isLoading: false};

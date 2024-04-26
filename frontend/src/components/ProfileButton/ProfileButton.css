@@ -1,0 +1,33 @@
+.logout-button {
+border: none;
+border-radius: 5px;
+padding: 5px 10px; 
+background-color: orange;
+color: white;
+font-family: Arial, Helvetica, sans-serif;
+cursor: pointer;
+font-size: 15px;
+}
+.logout-button:hover {
+background-color: rgb(146, 95, 1);
+}
+.ulClassName{
+display: flex;
+font-family: Arial, Helvetica, sans-serif;
+color: white;
+}
+
+.nav-user {
+ margin-right: 10px;
+ border: none;
+ border-radius: 5px;
+ padding: 10px 20px;
+ color: white; 
+ background-color: #1b79dd;
+ font-family: Arial, Helvetica, sans-serif;
+ cursor: pointer;
+ font-size: 15px;
+}
+.nav-user:hover {
+background-color: #145dab; 
+}

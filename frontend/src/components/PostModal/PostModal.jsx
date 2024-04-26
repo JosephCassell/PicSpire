@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'
 import { fetchComments, createComment, deleteComment, editComment } from '../../store/comments';
 import './PostModal.css'
 const PostModal = ({ post, onClose }) => {
@@ -15,7 +16,7 @@ const PostModal = ({ post, onClose }) => {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingText, setEditingText] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (post) {
       dispatch(fetchComments(post.id));
@@ -77,6 +78,13 @@ const PostModal = ({ post, onClose }) => {
       setEditingText("");
     }
   };
+  const goToUserProfile = (username) => {
+    onClose();
+    navigate(`/${username}/profile`);
+  };  
+  const handleBackdropClick = () => {
+    onClose();
+  };
   const renderComments = (comments, isChild = false) => {
     return comments.map((comment) => (
       <div key={comment.id} className={`comment ${isChild ? 'child-comment' : ''}`}>
@@ -93,7 +101,10 @@ const PostModal = ({ post, onClose }) => {
         ) : (
           <>
             <div className="comment-text">
-              <div className='comment-profile-name'>{comment.user?.username}</div>
+              <div className='comment-profile-name' onClick={(e) => {
+              e.stopPropagation();
+              goToUserProfile(comment.user?.username)}}>
+              {comment.user?.username}</div>
               {comment.text}
             </div>
             <div className="comment-actions">
@@ -142,9 +153,7 @@ const PostModal = ({ post, onClose }) => {
     }
   };
 
-  const handleBackdropClick = () => {
-    onClose();
-  };
+  
   const renderImages = () => {
     if (!post.images.length) return;
     const imageUrl = post.images[currentImageIndex].image_url;

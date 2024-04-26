@@ -13,11 +13,12 @@ function Navigation({ isLoaded }){
       <div className='signup'><NavLink to="/signup">Sign up</NavLink></div>
     </div>
   );
+  const logoLink = sessionUser ? '/feed' : '/';
   return (
     <ul className="navbar">
       <li className="logo">
         <img src="../../../public/favicon.ico" alt="PicSpire Logo" />
-        <NavLink to="/">PicSpire</NavLink>
+        <NavLink to={logoLink}>PicSpire</NavLink>
       </li>
       {isLoaded && sessionLinks}
     </ul>

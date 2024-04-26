@@ -1,5 +1,4 @@
 import { csrfFetch } from './csrf';
-import { uploadImage } from './images';
 
 const GET_POSTS = 'posts/getPosts';
 const REQUEST_START = 'posts/requestStart';
@@ -45,10 +44,15 @@ export const fetchFeed = (userId) => async (dispatch) => {
   dispatch({ type: FETCH_FEED_REQUEST });
   try {
     const response = await csrfFetch(`api/posts/feed/${userId}`);
-    dispatch({
-      type: FETCH_FEED_SUCCESS,
-      payload: response.data
-    });
+    if (response.ok) {
+      const data = await response.json();
+      dispatch({
+        type: FETCH_FEED_SUCCESS,
+        payload: data 
+      });
+    } else {
+      throw new Error('Network response was not ok.');
+    }
   } catch (error) {
     dispatch({
       type: FETCH_FEED_FAILURE,

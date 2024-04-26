@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import * as sessionActions from '../../store/session';
-
+import './ProfileButton.css'
 function ProfileButton() {
   const currentUser = useSelector(state => state.session.currentUser);
   const dispatch = useDispatch();
@@ -36,21 +36,16 @@ function ProfileButton() {
     navigate('/')
   };
 
-  const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
-
+  const profile = (e) => {
+    e.preventDefault();
+    navigate(`/${currentUser.username}/profile`)
+  };
   return (
     <>
-      <button onClick={toggleMenu}>
-        <FaUserCircle />
-      </button>
-      <ul className={ulClassName} ref={ulRef}>
-        <li>{currentUser.username}</li>
-        <li>{currentUser.firstName} {currentUser.lastName}</li>
-        <li>{currentUser.email}</li>
-        <li>
-          <button onClick={logout}>Log Out</button>
-        </li>
-      </ul>
+      <div className='ulClassName' ref={ulRef}>
+        <button onClick={profile} className='nav-user'>{currentUser.username}</button>
+        <button onClick={logout} className='logout-button'>Log Out</button>
+      </div>
     </>
   );
 }

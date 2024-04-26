@@ -30,7 +30,9 @@
     object-fit: cover;
     border: 2px solid transparent;
   }
-  
+  .profile-picture-clickable, .profile-picture-placeholder-clickable {
+    cursor: pointer;
+  }
   .profile-picture-placeholder {
     background-color: #ccc;
     display: flex;
@@ -38,10 +40,11 @@
     justify-content: center;
     transition: background-color 0.3s ease;
   }
-  
-  .profile-picture-placeholder:hover {
-    background-color: #bbb;
+  .profile-detail img:hover {
     cursor: pointer;
+  }
+  .profile-picture-placeholder-clickable:hover {
+    background-color: #bbb;
   }
   .followers-info {
     margin-right: 20px;
@@ -134,6 +137,9 @@
     position: relative;
     cursor: pointer;
   }
+  .post-item:hover {
+    background-color: #dbdbdb;
+  }
   .post-item img {
     width: 60%;
     height: 90%;
@@ -178,5 +184,84 @@
   .edit-post-button:hover, .delete-post-button:hover {
     color: #0056b3;
   }
-  
-  
+
+.delete-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; 
+}
+
+
+.delete-modal-content {
+  position: relative; 
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1001; 
+  max-width: 500px; 
+  margin: 0 20px;
+  text-align: center;
+}
+.deletePost-button{
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: red;
+  color: white;
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-right: 10px;
+}
+.deletePost-button:hover{
+  background-color: rgb(186, 2, 2);
+}
+.keepPost-button{
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: rgb(29, 181, 2);
+  color: white;
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.keepPost-button:hover{
+  background-color: rgb(21, 134, 1);
+}
+.follow-button {
+  padding: 5px 10px;
+  font-size: 12px;
+  padding-inline: 6px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  position: relative;
+  transition: background-color 0.3s;
+  max-height: 30px;
+  max-width: 80px;
+  margin-top: 23px;
+}
+
+.follow-button.follow {
+  background: #007bff;
+  color: white;
+}
+.follow-button.follow:hover {
+  background: #0151a8;
+}
+.follow-button.unfollow {
+  background: rgb(161, 160, 160);
+  color: white;
+}
+.follow-button.unfollow:hover {
+  background: rgb(133, 132, 132);
+}

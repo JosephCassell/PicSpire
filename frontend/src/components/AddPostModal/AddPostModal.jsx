@@ -34,22 +34,24 @@ const AddPostModal = ({ show, onClose }) => {
       <div className="add-post-modal-content">
         <form onSubmit={handleSubmit}>
           <h2>Add New Post</h2>
-          <textarea
+          <textarea className='addpost-textarea'
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="What's on your mind?"
             rows="4"
           />
           <label>
-            Images to Upload
+            Images to Upload 
             <input
               type="file"
               accept=".jpg, .jpeg, .png"
               multiple
               onChange={updateFiles} />
           </label>
-          <button type="submit">Post</button>
-          <button type="button" onClick={onClose}>Cancel</button>
+          <div className='addpost-buttons'>
+          <button type="submit" className='addpost-submit'>Post</button>
+          <button type="button" className='addpost-cancel'onClick={onClose}>Cancel</button>
+          </div>
         </form>
       </div>
     </div>
