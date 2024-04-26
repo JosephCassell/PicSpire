@@ -84,6 +84,6 @@ module.exports = {
   async down (queryInterface, Sequelize) {
     options.tableName = 'Comments';
     const Op = Sequelize.Op;
-    await queryInterface.bulkDelete('Comments', null, {});
+    await queryInterface.bulkDelete('Comments');
   }
 };
