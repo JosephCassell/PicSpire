@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkCreate( 'Posts',[
+    await Post.bulkCreate( 'Posts',[
       {
         user_id: 1,
         caption: 'First post!',

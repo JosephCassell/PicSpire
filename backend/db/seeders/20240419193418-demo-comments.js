@@ -1,12 +1,12 @@
 'use strict';
-
+const { Comment } = require('../models');
 let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
 }
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkCreate('Comments', [{
+    await Comment.bulkCreate('Comments', [{
       post_id: 1,
       parent_comment_id: null,
       user_id: 1,
