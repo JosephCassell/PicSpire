@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await Post.bulkCreate( 'Posts',[
+    await Post.bulkCreate([
       {
         user_id: 1,
         caption: 'First post!',
@@ -75,7 +75,6 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     options.tableName = 'Posts';
-    const Op = Sequelize.Op;
     await queryInterface.bulkDelete(options);
   }
 };

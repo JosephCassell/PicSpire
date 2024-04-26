@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await Comment.bulkCreate('Comments', [{
+    await Comment.bulkCreate([{
       post_id: 1,
       parent_comment_id: null,
       user_id: 1,
@@ -83,7 +83,6 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Comments';
-    const Op = Sequelize.Op;
-    await queryInterface.bulkDelete('Comments');
+    await queryInterface.bulkDelete(options);
   }
 };
