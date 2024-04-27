@@ -21,9 +21,9 @@ function ProfilePage() {
     } = useSelector(state => ({
       ...state.session,
       posts: state.posts.posts,
-      followers: state.session.followers.map(user => user.id)
+      followers: state.session.followers?.map(user => user.id)
     }));
-    const [followers, setFollowers] = useState(useSelector(state => state.session.followers.map(user => user.id)));
+    const [followers, setFollowers] = useState(useSelector(state => state.session.followers?.map(user => user.id)));
     useEffect(() => {
       if (username) {
        dispatch(getUserProfile(username));
@@ -106,23 +106,24 @@ function ProfilePage() {
         });
     };
     
-    if (!viewedUser) {
-      return <div>No user data available.</div>;
-    }
     const isCurrentUser = currentUser && viewedUser && currentUser.id === viewedUser.id;
 
-    const handleProfilePicUpload = (event) => {
+    const handleProfilePicUpload = async (event) => {
       const file = event.target.files[0];
       if (file) {
-        dispatch(uploadProfilePicture(currentUser.id, file));
+        try {
+          await dispatch(uploadProfilePicture(currentUser.id, file));
+          window.location.reload();
+        } catch (error) {
+          console.error('Failed to upload profile picture:', error);
+        }
       }
     };
-    
     return (
       <div className="profile-page">
         <div className="profile-content">
         <div className="profile-detail">
-          {viewedUser.profilePicture ? (
+          {viewedUser?.profilePicture ? (
             <img
               src={viewedUser.profilePicture}
               alt="Profile"
@@ -147,13 +148,13 @@ function ProfilePage() {
         </div>
           <div className="user-info">
             <div className='username-edit'>
-              <h1 className='profile-username'>{viewedUser.username}</h1>
+              <h1 className='profile-username'>{viewedUser?.username}</h1>
               {followButton()}
               {isCurrentUser && (
                 <button className="edit-profile-button">Edit</button>
               )}
             </div>
-            <p className='profile-name'>{`${viewedUser.firstName} ${viewedUser.lastName}`}</p>
+            <p className='profile-name'>{`${viewedUser?.firstName} ${viewedUser?.lastName}`}</p>
             <div className='follow-info'>
               <div className="followers-info">
                 <strong>Followers:</strong> {followersCount}
@@ -163,14 +164,14 @@ function ProfilePage() {
               </div>
             </div>
             <div className="profile-bio">
-              {viewedUser.bio || "No bio yet."}
+              {viewedUser?.bio || "No bio yet."}
             </div>
           </div>
         </div>
         <div className="posts-section">
           <div className="posts-header">
             <h2 className="posts-heading">
-              {isCurrentUser ? "Your Posts" : `${viewedUser.username}'s Posts`}
+              {isCurrentUser ? "Your Posts" : `${viewedUser?.username}'s Posts`}
             </h2>
             {isCurrentUser && (
               <>
@@ -185,7 +186,7 @@ function ProfilePage() {
           </div>
           <div className="posts-line"></div>
           <div className="posts-grid">
-            {posts.map((post) => (
+            {posts?.map((post) => (
               <div 
               key={post.id} 
               className={`post-item ${post.images && post.images.length > 0 ? 'with-image' : 'without-image'}`} 

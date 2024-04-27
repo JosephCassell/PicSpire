@@ -245,6 +245,7 @@ const initialState = {
   followingCount: 0,
   posts: []
   };
+
 const sessionReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CURRENT_USER:
@@ -265,9 +266,8 @@ const sessionReducer = (state = initialState, action) => {
       return { ...state, followers: [...state.followers, action.payload], followersCount: state.followersCount + 1 };
     case REMOVE_FOLLOWING: 
       return { ...state, followers: state.followers.filter(f => f.id !== action.payload), followersCount: state.followersCount - 1 };
-    case SET_PROFILE_PICTURE: {
-      const userToUpdate = state.currentUser && state.currentUser.id === state.viewedUser?.id ? 'currentUser' : 'viewedUser';
-      return {...state,[userToUpdate]: { ...state[userToUpdate], profilePicture: action.payload }, isLoading: false}}
+    case SET_PROFILE_PICTURE: 
+      return {...state.viewedUser, profilePicture: action.payload}
     default:
       return state;
   }
