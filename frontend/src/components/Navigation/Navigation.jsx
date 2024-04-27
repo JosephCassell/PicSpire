@@ -17,7 +17,7 @@ function Navigation({ isLoaded }){
   return (
     <ul className="navbar">
       <li className="logo">
-        <img src="../../../public/Logo.png" alt="PicSpire Logo" />
+        <img src="/Logo.png"/>
         <NavLink to={logoLink}>PicSpire</NavLink>
       </li>
       {isLoaded && sessionLinks}
