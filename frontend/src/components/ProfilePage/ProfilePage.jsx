@@ -114,6 +114,7 @@ function ProfilePage() {
       const file = event.target.files[0];
       if (file) {
         dispatch(uploadProfilePicture(viewedUser.id, file));
+        window.location.reload()
       }
     };
     
