@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from '../ProfileButton/ProfileButton';
 import './Navigation.css';
-
+import logo from '../../../public/images/Logo.png'
 function Navigation({ isLoaded }){
   const sessionUser = useSelector(state => state.session.currentUser);
   const sessionLinks = sessionUser ? (
@@ -17,7 +17,7 @@ function Navigation({ isLoaded }){
   return (
     <ul className="navbar">
       <li className="logo">
-        <img src="/Logo.png"/>
+        <img src={logo} alt="PicSpire Logo" />
         <NavLink to={logoLink}>PicSpire</NavLink>
       </li>
       {isLoaded && sessionLinks}
