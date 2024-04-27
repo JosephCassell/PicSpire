@@ -17,12 +17,13 @@ function ProfilePage() {
     const [showPostModal, setShowPostModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editablePost, setEditablePost] = useState(null);
-    const { currentUser, followersCount, followingCount, posts, viewedUser, followers 
+    const { currentUser, followersCount, followingCount, posts, viewedUser 
     } = useSelector(state => ({
       ...state.session,
       posts: state.posts.posts,
       followers: state.session.followers.map(user => user.id)
     }));
+    const [followers, setFollowers] = useState(useSelector(state => state.session.followers.map(user => user.id)));
     useEffect(() => {
       if (username) {
        dispatch(getUserProfile(username));
@@ -49,13 +50,12 @@ function ProfilePage() {
     const handleFollowClick = () => {
       if (followers.includes(currentUser.id)) {
         dispatch(unfollowUser(currentUser.id, viewedUser.id));
-        // window.location.reload()
+        setFollowers(prev => prev.filter(id => id !== currentUser.id));
       } else {
         dispatch(followUser(currentUser.id, viewedUser.id));
-        // window.location.reload()
+        setFollowers(prev => [...prev, currentUser.id]);
       }
     };
-    
     const followButton = () => {
       if (currentUser && viewedUser && currentUser.id !== viewedUser.id) {
         const isFollowing = followers.includes(currentUser.id);
@@ -110,11 +110,11 @@ function ProfilePage() {
       return <div>No user data available.</div>;
     }
     const isCurrentUser = currentUser && viewedUser && currentUser.id === viewedUser.id;
+
     const handleProfilePicUpload = (event) => {
       const file = event.target.files[0];
       if (file) {
-        dispatch(uploadProfilePicture(viewedUser.id, file));
-        // window.location.reload()
+        dispatch(uploadProfilePicture(currentUser.id, file));
       }
     };
     

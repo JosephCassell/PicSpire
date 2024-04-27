@@ -33,7 +33,7 @@ function LoginFormPage() {
     setErrors({});
     dispatch(sessionActions.login({ credential: 'Demo-lition', password: 'password' }))
     .then(() => {
-      navigate(`/Demo-lition/profile`); 
+      navigate(`/feed`); 
     })
     .catch(async (res) => {
       const data = await res.json();

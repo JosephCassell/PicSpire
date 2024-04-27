@@ -98,7 +98,6 @@ export const uploadProfilePicture = (userId, file) => async (dispatch) => {
     }
 
     const data = await response.json();
-    dispatch(setCurrentUser(data));
     dispatch(updateUserProfilePicture(data.profilePicture));
   } catch (error) {
     dispatch(requestFail(error.message));
