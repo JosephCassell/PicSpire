@@ -49,10 +49,10 @@ function ProfilePage() {
     const handleFollowClick = () => {
       if (followers.includes(currentUser.id)) {
         dispatch(unfollowUser(currentUser.id, viewedUser.id));
-        window.location.reload()
+        // window.location.reload()
       } else {
         dispatch(followUser(currentUser.id, viewedUser.id));
-        window.location.reload()
+        // window.location.reload()
       }
     };
     
@@ -114,7 +114,7 @@ function ProfilePage() {
       const file = event.target.files[0];
       if (file) {
         dispatch(uploadProfilePicture(viewedUser.id, file));
-        window.location.reload()
+        // window.location.reload()
       }
     };
     
