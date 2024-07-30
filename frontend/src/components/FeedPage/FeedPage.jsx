@@ -19,6 +19,7 @@ const FeedComponent = () => {
   useEffect(() => {
     document.body.classList.toggle('modal-open',  showPostModal );
   }, [showPostModal]);
+
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -55,7 +56,7 @@ const FeedComponent = () => {
               e.stopPropagation();
               goToUserProfile(post.user.username)}}>
               {post.user?.username}
-              {console.log('post', post)}
+              
             </div>
             {post.caption && (
               <div className="feed-caption-only">

@@ -20,7 +20,7 @@
   max-width: 30%;
 }
 
-.landing-page-sign-up-button :hover {
+.landing-page-sign-up-button:hover {
   background-color: #0056b3;
 }
 .landing-page ul {

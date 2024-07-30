@@ -166,7 +166,6 @@ export const fetchFollowers = (userId) => async (dispatch) => {
     const response = await csrfFetch(`/api/users/${userId}/followers`);
     if (response.ok) {
       const data = await response.json();
-      console.log('data',data.followers)
       dispatch(setFollowers(data.followers));
     } else {
       throw new Error('Failed to fetch followers');

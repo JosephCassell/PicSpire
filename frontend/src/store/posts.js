@@ -88,7 +88,6 @@ export const createPost = (postDetails) => async (dispatch, getState) => {
     if (response.ok) {
       const data = await response.json();
       dispatch(addPost(data));
-      console.log('Post created successfully:', data);
     } else {
       const errorData = await response.json();
       throw new Error(`Failed to create post: ${errorData.message || 'Unknown error'}`);
@@ -149,7 +148,6 @@ export const editPost = (postId, formData) => async (dispatch, getState) => {
     if (response.ok) {
       const updatedPost = await response.json();
       dispatch(updatePost(updatedPost));
-      console.log('Post updated successfully:', updatedPost);
     } else {
       const errorData = await response.json();
       throw new Error(`Failed to update post: ${errorData.message || 'Unknown error'}`);
