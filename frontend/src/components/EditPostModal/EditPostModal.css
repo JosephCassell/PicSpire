@@ -29,6 +29,7 @@
     height: 80%;
     overflow-y: auto; 
     justify-content: space-between;
+    z-index: 20;
   }
   .edit-modal-form {
     background: white;
@@ -37,6 +38,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    z-index: 20;
   }
   .edit-buttons {
     display: flex;

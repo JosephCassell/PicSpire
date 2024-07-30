@@ -96,10 +96,10 @@ function ProfilePage() {
         }
     };
 
-    // const openPostModal = (post) => {
-    //     setCurrentPost(post);
-    //     setShowPostModal(true);
-    // };
+    const openPostModal = (post) => {
+        setCurrentPost(post);
+        setShowPostModal(true);
+    };
 
     const closePostModal = () => {
         setShowPostModal(false);
@@ -109,6 +109,7 @@ function ProfilePage() {
     const openEditModal = (post) => {
         setEditablePost(post);
         setShowEditModal(true);
+        setShowPostOptions((prev) => ({ ...prev, [post.id]: false })); // Close the post options menu
     };
 
     const closeEditModal = () => {
@@ -222,7 +223,12 @@ function ProfilePage() {
                 <div className="posts-line"></div>
                 <div className="posts-grid">
                     {posts?.map((post) => (
-                        <div key={post.id} id={`post-item-${post.id}`} className={`post-item ${post.images && post.images.length > 0 ? 'with-image' : 'without-image'}`}>
+                        <div
+                            key={post.id}
+                            id={`post-item-${post.id}`}
+                            className={`post-item ${post.images && post.images.length > 0 ? 'with-image' : 'without-image'}`}
+                            onClick={() => openPostModal(post)}
+                        >
                             <div className="post-header">
                                 <div className="post-header-left">
                                     {viewedUser?.profilePicture ? (
@@ -238,7 +244,13 @@ function ProfilePage() {
                                 </div>
                                 {isCurrentUser && (
                                     <div className="post-options" ref={(el) => postOptionsMenuRefs.current[post.id] = el}>
-                                        <button className="post-options-button" onClick={() => togglePostOptions(post.id)}>...</button>
+                                        <button
+                                            className="post-options-button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                togglePostOptions(post.id);
+                                            }}
+                                        >...</button>
                                         {showPostOptions[post.id] && (
                                             <div className="post-options-menu">
                                                 <button onClick={(e) => {
