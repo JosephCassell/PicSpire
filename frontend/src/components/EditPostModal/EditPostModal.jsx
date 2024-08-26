@@ -75,7 +75,11 @@ function EditPostModal({ post, show, onClose, onSubmit }) {
             onChange={(e) => setCaption(e.target.value)}
             className="edit-caption-input"
           />
+          <label htmlFor="file-upload" className="custom-file-upload-label">
+            Choose files
+          </label>
           <input
+            id="file-upload"
             type="file"
             multiple
             onChange={handleFilesChange}
@@ -92,6 +96,6 @@ function EditPostModal({ post, show, onClose, onSubmit }) {
       </div>
     </div>
   );
-}
+}  
 
 export default EditPostModal;

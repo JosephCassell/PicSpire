@@ -1,105 +1,144 @@
 .edit-modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .edit-caption-input{
-    border: none;
-    flex-grow: 1;
-    margin-bottom: 10px;
-    resize: none;
-  }
-  .edit-caption-input:focus{
-    outline: none;
-    border: 2px solid #1b79dd;
-  }
-  .edit-modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    height: 80%;
-    overflow-y: auto; 
-    justify-content: space-between;
-    z-index: 20;
-  }
-  .edit-modal-form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    z-index: 20;
-  }
-  .edit-buttons {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: auto;
-  }
-  .post-save, .post-cancel{
-    padding: 5px 10px; 
-    border: none;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    border-radius: 7px;
-    margin-right: 5px;
-    cursor: pointer;
-  }
-  .post-save {
-    background: #007bff;
-  }
-  .post-save:hover {
-    background: #0056b3;
-  }
-  .post-cancel {
-    background: rgb(161, 160, 160);
-    margin-right: 0;
-  }
-  .post-cancel:hover {
-    background: rgb(104, 104, 104);
-  }
-  button:last-child {
-    margin-right: 0;
-  }
-  .image-preview img {
-    max-width: 30%;
-    max-height: 30%;
-    object-fit: contain;
-    margin-right: 10px;
-  }
-  
-  .image-preview {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .remove-image {
-    cursor: pointer;
-  }
-  .custom-file-upload {
-    display: inline-block;
-    padding: 6px 12px;
-    cursor: pointer;
-    background-color: #f0f0f0; 
-    border: 1px solid #ddd; 
-    border-radius: 4px; 
-    font-size: 14px;
-    color: #555; 
-    transition: all 0.3s ease;
-  }
-  
-  .custom-file-upload:hover {
-    background-color: #e9e9e9; 
-    color: #333;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-caption-input {
+  margin-bottom: 10px;
+  resize: none;
+  border-radius: 8px;
+  height: 50px;
+}
+
+.edit-caption-input:focus {
+  outline: none;
+  border: 2px solid #2689ec;
+}
+
+.edit-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  height: 30%;
+  overflow-y: auto;
+  justify-content: space-between;
+  z-index: 20;
+}
+
+.edit-modal-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  z-index: 20;
+}
+
+.edit-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.post-save, .post-cancel {
+  padding: 5px 10px;
+  border: none;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  border-radius: 7px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.post-save {
+  background: #007bff;
+}
+
+.post-save:hover {
+  background: #0056b3;
+}
+
+.post-cancel {
+  background: rgb(161, 160, 160);
+  margin-right: 0;
+}
+
+.post-cancel:hover {
+  background: rgb(104, 104, 104);
+}
+
+button:last-child {
+  margin-right: 0;
+}
+
+.image-preview img {
+  max-width: 30%;
+  max-height: 30%;
+  object-fit: contain;
+  margin-right: 10px;
+  border-radius: 10px;
+}
+
+.image-preview {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.remove-image {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: #cf2e02
+}
+
+.custom-file-upload-label {
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #bababa;
+  width: 80px;
+  color: white;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-bottom: 5px;
+}
+
+.custom-file-upload-label:hover {
+  background-color: #999999;
+}
+
+.custom-file-upload {
+  display: none;
+}
+
+.edit-modal-content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.edit-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.edit-modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.edit-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

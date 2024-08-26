@@ -21,7 +21,7 @@ router.get('/:postId', async (req, res) => {
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['id', 'username']
+                    attributes: ['id', 'username', 'profilePicture']
                 },
                 {
                     model: Comment,
@@ -30,7 +30,7 @@ router.get('/:postId', async (req, res) => {
                         {
                             model: User,
                             as: 'user',
-                            attributes: ['id', 'username']
+                            attributes: ['id', 'username', 'profilePicture']
                         },
                         {
                             model: Comment,
@@ -39,7 +39,7 @@ router.get('/:postId', async (req, res) => {
                                 {
                                     model: User,
                                     as: 'user',
-                                    attributes: ['id', 'username']
+                                    attributes: ['id', 'username', 'profilePicture']
                                 }
                             ]
                         }
@@ -75,7 +75,18 @@ router.post('/', requireAuth, async (req, res) => {
             text: text
         });
 
-        res.status(201).json(comment);
+        const createdComment = await Comment.findOne({
+            where: { id: comment.id },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'username', 'profilePicture']
+                }
+            ]
+        });
+
+        res.status(201).json(createdComment);
     } catch (error) {
         console.error('Failed to create comment:', error);
         res.status(500).send({ message: 'Error creating comment', error: error.message });

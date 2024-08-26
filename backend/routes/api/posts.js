@@ -154,35 +154,38 @@ router.patch('/:postId', requireAuth, multipleMulterUpload('images'), async (req
 // Get all posts from people the user follows
 router.get('/feed/:userId', async (req, res) => {
   try {
+    const followingUsers = await Follower.findAll({
+      where: { user_follower_id: req.params.userId },
+      attributes: ['followed_id']
+    });
+
+    const followedUserIds = followingUsers.map(follower => follower.followed_id);
+
     const posts = await Post.findAll({
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'username', 'firstName', 'lastName', 'profilePicture'],
-        include: [{
-          model: Follower,
-          as: 'followers',
-          attributes: [],
-          where: { followed_id: req.params.userId },
-          include: [{
-            model: User,
-            as: 'user_followers',
-            attributes: [],
-          }]
-        }]
-      }, {
-        model: Image,
-        as: 'images',
-        attributes: ['image_url']
-      }],
+      where: { user_id: followedUserIds },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'firstName', 'lastName', 'profilePicture']
+        },
+        {
+          model: Image,
+          as: 'images',
+          attributes: ['image_url']
+        }
+      ],
       order: [['createdAt', 'DESC']]
     });
+
     res.json(posts);
   } catch (error) {
     console.error('Failed to fetch feed', error);
     res.status(500).send('Failed to fetch feed');
   }
 });
+
+
 
 
 module.exports = router;

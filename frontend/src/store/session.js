@@ -159,11 +159,11 @@ export const getUserProfile = (username) => async (dispatch) => {
   }
 };
 
-
 // Get a user's followers
 export const fetchFollowers = (userId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/users/${userId}/followers`);
+    
     if (response.ok) {
       const data = await response.json();
       dispatch(setFollowers(data.followers));
@@ -171,14 +171,15 @@ export const fetchFollowers = (userId) => async (dispatch) => {
       throw new Error('Failed to fetch followers');
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error in fetchFollowers:', error);
   }
 };
 
-// Get a user who follows
+// Get all users current user follows
 export const fetchFollowing = (userId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/users/${userId}/following`);
+    
     if (response.ok) {
       const data = await response.json();
       dispatch(setFollowing(data.following));
@@ -186,9 +187,10 @@ export const fetchFollowing = (userId) => async (dispatch) => {
       throw new Error('Failed to fetch following');
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error in fetchFollowing:', error);
   }
 };
+
 // Follow a user
 export const followUser = (userId, followedId) => async (dispatch) => {
   try {
@@ -231,7 +233,29 @@ export const unfollowUser = (userId, followedId) => async (dispatch) => {
     console.error(error);
   }
 };
+// Update a user's bio
+export const updateUserBio = (userId, bio) => async (dispatch) => {
+  dispatch(requestStart());
+  
+  try {
+    const response = await csrfFetch(`/api/users/${userId}/bio`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bio }),
+    });
 
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(setViewedUser(data));  
+    } else {
+      throw new Error('Failed to update bio');
+    }
+  } catch (error) {
+    dispatch(requestFail(error.message));
+  }
+};
 
 const initialState = {
   currentUser: null,
@@ -262,11 +286,17 @@ const sessionReducer = (state = initialState, action) => {
     case GET_FOLLOWING:
       return { ...state, following: action.payload, followingCount: action.payload.length };
     case ADD_FOLLOWING:
-      return { ...state, followers: [...state.followers, action.payload], followersCount: state.followersCount + 1 };
+      if (state.currentUser && state.currentUser.id === action.payload.userId) {
+        return { ...state, following: [...state.following, action.payload], followingCount: state.followingCount + 1 };
+      }
+      return state;
     case REMOVE_FOLLOWING: 
-      return { ...state, followers: state.followers.filter(f => f.id !== action.payload), followersCount: state.followersCount - 1 };
+      if (state.currentUser && state.currentUser.id === action.payload.userId) {
+        return { ...state, following: state.following.filter(f => f.id !== action.payload), followingCount: state.followingCount - 1 };
+      }
+    return state;
     case SET_PROFILE_PICTURE: 
-      return {...state.viewedUser, profilePicture: action.payload}
+      return {...state, viewedUser: {...state.viewedUser, profilePicture: action.payload} }
     default:
       return state;
   }

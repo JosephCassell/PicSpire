@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getUserProfile, fetchFollowers, fetchFollowing, uploadProfilePicture, followUser, unfollowUser } from '../../store/session';
+import { getUserProfile, fetchFollowers, fetchFollowing, uploadProfilePicture, followUser, unfollowUser, updateUserBio } from '../../store/session';
 import { fetchPosts, removePost, editPost } from '../../store/posts';
 import AddPostModal from '../AddPostModal/AddPostModal';
 import EditPostModal from '../EditPostModal/EditPostModal';
@@ -19,12 +19,13 @@ function ProfilePage() {
     const [editablePost, setEditablePost] = useState(null);
     const [showPostOptions, setShowPostOptions] = useState({});
     const postOptionsMenuRefs = useRef({});
-    const { currentUser, followersCount, followingCount, posts, viewedUser, followers } = useSelector(state => ({
+    const [isEditingBio, setIsEditingBio] = useState(false); 
+    const [bio, setBio] = useState(''); 
+
+    const { currentUser, followersCount, followingCount, posts, viewedUser, followers, } = useSelector(state => ({
         ...state.session,
         posts: state.posts.posts,
-        followers: state.session.followers?.map(user => user.id) || []
     }));
-    const [localFollowers, setLocalFollowers] = useState(followers);
 
     useEffect(() => {
         if (username) {
@@ -47,11 +48,20 @@ function ProfilePage() {
     useEffect(() => {
         const handleClickOutside = (event) => {
             Object.keys(postOptionsMenuRefs.current).forEach(postId => {
-                if (postOptionsMenuRefs.current[postId] && !postOptionsMenuRefs.current[postId].contains(event.target)) {
-                    setShowPostOptions(prev => ({ ...prev, [postId]: false }));
+                const menuRef = postOptionsMenuRefs.current[postId];
+                if (menuRef && !menuRef.contains(event.target)) {
+                    setShowPostOptions(prevState => {
+                        const newState = { ...prevState, [postId]: false };
+                        const postItem = document.getElementById(`post-item-${postId}`);
+                        if (postItem) {
+                            postItem.classList.remove('no-hover');
+                        }
+                        return newState;
+                    });
                 }
             });
         };
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -65,20 +75,26 @@ function ProfilePage() {
     const handleCloseModal = () => {
         setDeletePostId(null);
     };
-
+    
     const handleFollowClick = async () => {
-        if (localFollowers.includes(currentUser.id)) {
-            await dispatch(unfollowUser(currentUser.id, viewedUser.id));
-            setLocalFollowers(prev => prev.filter(id => id !== currentUser.id));
-        } else {
-            await dispatch(followUser(currentUser.id, viewedUser.id));
-            setLocalFollowers(prev => [...prev, currentUser.id]);
+        try {
+            const isFollowing = followers.some(follower => follower.id === currentUser.id);
+
+            if (isFollowing) {
+                await dispatch(unfollowUser(currentUser.id, viewedUser.id));
+                dispatch(fetchFollowers(viewedUser.id));
+            } else {
+                await dispatch(followUser(currentUser.id, viewedUser.id));
+                dispatch(fetchFollowers(viewedUser.id)); 
+            }
+        } catch (error) {
+            console.error('Error updating follow status:', error);
         }
     };
 
     const followButton = () => {
         if (currentUser?.id !== viewedUser?.id) {
-            const isFollowing = localFollowers.includes(currentUser.id);
+            const isFollowing = followers.some(follower => follower.id === currentUser.id);
             const buttonClass = isFollowing ? "unfollow" : "follow";
             return (
                 <button className={`follow-button ${buttonClass}`} onClick={handleFollowClick}>
@@ -97,10 +113,14 @@ function ProfilePage() {
     };
 
     const openPostModal = (post) => {
-        setCurrentPost(post);
+        const postOwner = {
+            username: viewedUser?.username,
+            profilePicture: viewedUser?.profilePicture
+        };
+        setCurrentPost({ ...post, ...postOwner });
         setShowPostModal(true);
     };
-
+    
     const closePostModal = () => {
         setShowPostModal(false);
         setCurrentPost(null);
@@ -109,7 +129,7 @@ function ProfilePage() {
     const openEditModal = (post) => {
         setEditablePost(post);
         setShowEditModal(true);
-        setShowPostOptions((prev) => ({ ...prev, [post.id]: false })); // Close the post options menu
+        setShowPostOptions((prev) => ({ ...prev, [post.id]: false }));
     };
 
     const closeEditModal = () => {
@@ -141,7 +161,7 @@ function ProfilePage() {
     };
 
     const togglePostOptions = (postId) => {
-        setShowPostOptions((prev) => {
+        setShowPostOptions(prev => {
             const newState = { ...prev, [postId]: !prev[postId] };
             const postItem = document.getElementById(`post-item-${postId}`);
             if (newState[postId]) {
@@ -152,57 +172,92 @@ function ProfilePage() {
             return newState;
         });
     };
-
+    const handleEditBio = () => {
+        setIsEditingBio(true);
+        setBio(viewedUser.bio || '');
+    };
+    
+    const handleSaveBio = async () => {
+        if (bio.length <= 150) {
+            try {
+                await dispatch(updateUserBio(viewedUser.id, bio));
+                dispatch(getUserProfile(username)); 
+                setIsEditingBio(false);
+            } catch (error) {
+                console.error('Failed to update bio:', error);
+            }
+        }
+    };
+    
     const isCurrentUser = currentUser && viewedUser && currentUser.id === viewedUser.id;
 
     return (
-        <div className="profile-page">
-            <div className="profile-content">
-                <div className="profile-detail">
-                    {viewedUser?.profilePicture ? (
-                        <img
-                            src={viewedUser.profilePicture}
-                            alt="Profile"
-                            className={isCurrentUser ? "profile-picture-clickable" : ""}
-                            onClick={isCurrentUser ? () => document.getElementById('profilePicUpload').click() : null}
-                        />
-                    ) : (
-                        <div
-                            className={`profile-picture-placeholder ${isCurrentUser ? "profile-picture-placeholder-clickable" : ""}`}
-                            onClick={isCurrentUser ? () => document.getElementById('profilePicUpload').click() : null}
-                        ></div>
-                    )}
-                    {isCurrentUser && (
-                        <input
-                            type="file"
-                            id="profilePicUpload"
-                            style={{ display: 'none' }}
-                            onChange={handleProfilePicUpload}
-                            accept="image/*"
-                        />
-                    )}
-                </div>
-                <div className="user-info">
-                    <div className='username-edit'>
-                        <h1 className='profile-username'>{viewedUser?.username}</h1>
-                        {followButton()}
+            <div className="profile-page">
+                <div className="profile-content">
+                    <div className="profile-detail">
+                        {viewedUser?.profilePicture ? (
+                            <img
+                                src={viewedUser.profilePicture}
+                                alt="Profile"
+                                className={isCurrentUser ? "profile-picture-clickable" : ""}
+                                onClick={isCurrentUser ? () => document.getElementById('profilePicUpload').click() : null}
+                            />
+                        ) : (
+                            <div
+                                className={`profile-picture-placeholder ${isCurrentUser ? "profile-picture-placeholder-clickable" : ""}`}
+                                onClick={isCurrentUser ? () => document.getElementById('profilePicUpload').click() : null}
+                            ></div>
+                        )}
                         {isCurrentUser && (
-                            <button className="edit-profile-button">Edit</button>
+                            <input
+                                type="file"
+                                id="profilePicUpload"
+                                style={{ display: 'none' }}
+                                onChange={handleProfilePicUpload}
+                                accept="image/*"
+                            />
                         )}
                     </div>
-                    <p className='profile-name'>{`${viewedUser?.firstName} ${viewedUser?.lastName}`}</p>
-                    <div className='follow-info'>
-                        <div className="followers-info">
-                            <strong>Followers:</strong> {followersCount}
+                    <div className="user-info">
+                        <div className='username-edit'>
+                            <h1 className='profile-username'>{viewedUser?.username}</h1>
+                            {followButton()}
+                            {isCurrentUser && (
+                                <>
+                                    <button onClick={handleEditBio}className="edit-profile-button">Edit</button>
+                                </>
+                            )}
                         </div>
-                        <div className="following-info">
-                            <strong>Following:</strong> {followingCount}
+                        <p className='profile-name'>{`${viewedUser?.firstName} ${viewedUser?.lastName}`}</p>
+                        <div className='follow-info'>
+                            <div className="followers-info">
+                                <strong>Followers:</strong> {followersCount}
+                            </div>
+                            <div className="following-info">
+                                <strong>Following:</strong> {followingCount}
+                            </div>
+                        </div>
+                        <div className="profile-bio">
+                            {isEditingBio ? (
+                                <>
+                                    <textarea
+                                        value={bio}
+                                        onChange={(e) => setBio(e.target.value)}
+                                        maxLength={150}
+                                        className="bio-edit-input"
+                                    />
+                                    <div className="bio-button-group">
+                                        <button onClick={handleSaveBio} className="save-bio-button">Save</button>
+                                        <button onClick={() => setIsEditingBio(false)} className="cancel-bio-button">Cancel</button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="bio-display">
+                                    <p>{viewedUser?.bio || "No bio yet."}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <div className="profile-bio">
-                        {viewedUser?.bio || "No bio yet."}
-                    </div>
-                </div>
             </div>
             <div className="posts-section">
                 <div className="posts-header">
@@ -229,59 +284,61 @@ function ProfilePage() {
                             className={`post-item ${post.images && post.images.length > 0 ? 'with-image' : 'without-image'}`}
                             onClick={() => openPostModal(post)}
                         >
-                            <div className="post-header">
-                                <div className="post-header-left">
-                                    {viewedUser?.profilePicture ? (
-                                        <img
-                                            src={viewedUser.profilePicture}
-                                            alt="User Profile"
-                                            className="post-profile-picture"
-                                        />
-                                    ) : (
-                                        <div className="post-profile-picture-placeholder"></div>
-                                    )}
-                                    <span className="post-username">{viewedUser?.username}</span>
-                                </div>
-                                {isCurrentUser && (
-                                    <div className="post-options" ref={(el) => postOptionsMenuRefs.current[post.id] = el}>
-                                        <button
-                                            className="post-options-button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                togglePostOptions(post.id);
-                                            }}
-                                        >...</button>
-                                        {showPostOptions[post.id] && (
-                                            <div className="post-options-menu">
-                                                <button onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    openEditModal(post);
-                                                }} className="post-options-menu-item">
-                                                    Edit
-                                                </button>
-                                                <button onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleOpenModal(post.id);
-                                                }} className="post-options-menu-item">
-                                                    Delete
-                                                </button>
-                                            </div>
+                            <div className='post-without-img'> 
+                                <div className="post-header">
+                                    <div className="post-header-left">
+                                        {viewedUser?.profilePicture ? (
+                                            <img
+                                                src={viewedUser.profilePicture}
+                                                alt="User Profile"
+                                                className="post-profile-picture"
+                                            />
+                                        ) : (
+                                            <div className="post-profile-picture-placeholder"></div>
                                         )}
+                                        <span className="post-username">{viewedUser?.username}</span>
+                                    </div>
+                                    {isCurrentUser && (
+                                        <div className="post-options" ref={(el) => postOptionsMenuRefs.current[post.id] = el}>
+                                            <button
+                                                className="post-options-button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    togglePostOptions(post.id);
+                                                }}
+                                            >...</button>
+                                            {showPostOptions[post.id] && (
+                                                <div className="post-options-menu">
+                                                    <button onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openEditModal(post);
+                                                    }} className="post-options-menu-item">
+                                                        Edit
+                                                    </button>
+                                                    <button onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleOpenModal(post.id);
+                                                    }} className="post-options-menu-item">
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                {post.caption && (
+                                    <div className={post.images && post.images.length > 0 ? "caption-with-image" : "caption-no-image"}>
+                                        {post.caption}
                                     </div>
                                 )}
+                                {post.images && post.images.length > 0 && (
+                                    <img
+                                        src={post.images[0].image_url}
+                                        alt="Post"
+                                    />
+                                )}
                             </div>
-                            {post.caption && (
-                                <div className="caption-only">
-                                    {post.caption}
-                                </div>
-                            )}
-                            {post.images && post.images.length > 0 && (
-                                <img
-                                    src={post.images[0].image_url}
-                                    alt="Post"
-                                />
-                            )}
-                        </div>
+                        </div>   
                     ))}
                 </div>
                 {showEditModal && editablePost && (
@@ -292,7 +349,14 @@ function ProfilePage() {
                         onSubmit={handleSaveChanges}
                     />
                 )}
-                {showPostModal && <PostModal post={currentPost} onClose={closePostModal} />}
+                {showPostModal && (
+                    <PostModal 
+                        post={currentPost} 
+                        onClose={closePostModal} 
+                        postOwnerUsername={currentPost?.username} 
+                        postOwnerProfilePicture={currentPost?.profilePicture}
+                    />
+                )}
             </div>
             {deletePostId && (
                 <div className="delete-modal-backdrop" onClick={handleCloseModal}>

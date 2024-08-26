@@ -25,14 +25,14 @@
   position: relative;
 }
 .post-caption{
-  margin-left: 10px;
-  margin-top: 5px;
-  border-bottom: 2px solid #e2e2e2;
+  margin-left: 29px;
+  margin-bottom: 5px;
 }
 .post-modal-content {
   display: flex;
   flex-direction: column;
   width: 100%;
+  text-align: left;
 }
 
 .post-details, .comments-section {
@@ -43,6 +43,7 @@
   width: 100%; 
   border-radius: 8px;
   margin-bottom: 16px;
+  border-radius: 10px;
 }
 .create-a-comment{
   margin-top: 10px;
@@ -84,18 +85,20 @@
 .comment-actions { 
   text-align: left; 
   background: transparent;
+  margin-left: 29px;
+  margin-top: 5px;
 }
 .reply-button:hover, .view-reply-button:hover, .comment-delete-button:hover, .comment-edit-button:hover, .save-edit-comment:hover, .post-reply:hover{ 
   color: #0159b7
 }
 
 .reply-text-area, .edit-comment-text-area{
-resize: none;
-outline: none;
-border: none;
-background-color: rgb(224, 221, 221);
-border-radius: 5px;
-margin-right: 5px;
+  resize: none;
+  outline: none;
+  border: none;
+  background-color: rgb(224, 221, 221);
+  border-radius: 5px;
+  margin-right: 5px;
 }
 
 .child-comment {
@@ -135,7 +138,14 @@ margin-right: 5px;
   transition: background-color 0.3s ease;
   margin-bottom: 10px;
 }
+.comment-username{
+  font-weight: bold;
 
+}
+.comment-username:hover{
+  color: #007bff;
+  cursor: pointer;
+}
 .post-button:hover {
   background-color: #0056b3;
 }
@@ -172,4 +182,42 @@ margin-right: 5px;
   max-width: 80%;
   max-height: 50%;
   object-fit: contain;
+  border-radius: 15px;
+}
+.comment-profile-picture{
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  cursor: pointer;
+}
+
+.comment-profile-picture-placeholder {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  font-size: 12px;
+  color: #fff;
+  cursor: pointer;
+}
+.comment-header {
+  display: flex;
+  flex-direction: column; 
+}
+
+.post-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.comment-text {
+  margin-left: 29px;
 }

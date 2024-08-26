@@ -1,68 +1,129 @@
 .add-post-modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .add-post-modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  } 
-  .add-post-modal-content form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .add-post-modal-content textarea {
-    margin-bottom: 10px;
-  }
-  
-  .add-post-modal-content button {
-    margin-top: 10px;
-  }
-  .addpost-buttons {
-    display: flex;
-    justify-content: flex-end;
-  }
-  .addpost-submit{
-    border: none;
-    border-radius: 5px;
-    margin-right: 10px;
-    cursor: pointer;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    padding: 5px 10px;
-    background: #007bff;
-  }
-  .addpost-submit:hover {
-    background: #0056b3;
-  }
-  .addpost-cancel{
-    border: none;
-    border-radius: 5px;
-    margin-right: 10px;
-    cursor: pointer;
-    background: rgb(161, 160, 160);
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    padding: 5px 10px;
-  }
-  .addpost-cancel:hover {
-    background: rgb(104, 104, 104);
-  }
-  .addpost-textarea{
-    resize: none;
-    outline: none;
-  }
-  .addpost-textarea:focus{
-    outline: none;
-    border: 2px solid #1b79dd;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.add-post-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 40%;
+  max-height: 60%;
+  overflow-y: auto;
+}
+
+.add-post-modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-post-modal-content textarea {
+  margin-bottom: 10px;
+}
+
+.addpost-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.addpost-submit {
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 5px 10px;
+  background: #007bff;
+}
+
+.addpost-submit:hover {
+  background: #0056b3;
+}
+
+.addpost-cancel {
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  background: rgb(161, 160, 160);
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 5px 10px;
+}
+
+.addpost-cancel:hover {
+  background: rgb(104, 104, 104);
+}
+
+.addpost-textarea {
+  resize: none;
+  outline: none;
+  border-radius: 5px;
+}
+
+.addpost-textarea:focus {
+  outline: none;
+  border: 2px solid #1b79dd;
+  border-radius: 5px;
+}
+
+.add-file-upload-label {
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #bababa;
+  color: white;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+  width: 100px;
+}
+
+.add-file-upload-label:hover {
+  background-color: #999999;
+}
+
+.add-file-upload {
+  display: none;
+}
+
+.image-preview {
+  position: relative;
+}
+
+.image-preview img {
+  max-width: 30%;
+  max-height: 30%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.add-post-modal-content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.add-post-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.add-post-modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.add-post-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

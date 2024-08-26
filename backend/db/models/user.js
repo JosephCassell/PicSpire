@@ -7,8 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Post, { foreignKey: 'user_id', as: 'posts' });
       User.hasMany(models.Comment, { foreignKey: 'user_id', as: 'comments' });
       User.hasMany(models.Reaction, { foreignKey: 'user_id', as: 'reactions' });
-      User.hasMany(models.Follower, { foreignKey: 'user_follower_id', as: 'followers' });
-      User.hasMany(models.Follower, { foreignKey: 'followed_id', as: 'following' });
+      User.belongsToMany(User, {through: models.Follower, as: 'followers', foreignKey: 'followed_id', otherKey: 'user_follower_id'});
+      User.belongsToMany(User, {through: models.Follower, as: 'following', foreignKey: 'user_follower_id', otherKey: 'followed_id'});      
       User.hasMany(models.Message, { foreignKey: 'sender_id', as: 'sentMessages' });
       User.hasMany(models.Message, { foreignKey: 'receiver_id', as: 'receivedMessages' });
     }

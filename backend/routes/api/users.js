@@ -31,6 +31,14 @@ const validateSignup = [
   .withMessage('Please provide your last name.'),
   handleValidationErrors
 ];
+const validateBio = [
+  check('bio')
+    .optional()
+    .isLength({ max: 150 })
+    .withMessage('Bio must be 150 characters or less.'),
+  handleValidationErrors
+];
+
 router.post(
     '/',
     validateSignup,
@@ -55,38 +63,11 @@ router.post(
     }
 );
 
-// Route to get all followers of a user
-router.get('/:userId/followers', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const user_followers = await Follower.findAll({
-      where: { followed_id: userId },
-      include: {
-        model: User,
-        as: 'user_followers',
-        attributes: ['id', 'username']
-      }
-    });
-    const followersData = user_followers.map(f => ({
-      ...f.user_followers.dataValues,
-      followerId: f.dataValues.user_follower_id
-    }));
-    res.json({
-      count: followersData.length,
-      followers: followersData
-    });
-  } catch (error) {
-    console.error('Error fetching followers:', error); 
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-
 // Route to get all users a user is following
 router.get('/:userId/following', async (req, res) => {
   try {
     const userId = req.params.userId;
-    const followings = await Follower.findAll({
+    const following = await Follower.findAll({
       where: { user_follower_id: userId },
       include: {
         model: User,
@@ -94,14 +75,52 @@ router.get('/:userId/following', async (req, res) => {
         attributes: ['id', 'username']
       }
     });
+
+    const followingData = following.map(f => ({
+      id: f.followed.id,
+      username: f.followed.username
+    }));
+
     res.json({
-      count: followings.length,
-      following: followings.map(f => f.followed)
+      count: followingData.length,
+      following: followingData
     });
   } catch (error) {
+    console.error('Error fetching following:', error); 
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
+// Route to get user's followers 
+router.get('/:userId/followers', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const followers = await Follower.findAll({
+      where: { followed_id: userId },
+      include: {
+        model: User,
+        as: 'user_followers', 
+        attributes: ['id', 'username']
+      }
+    });
+
+    const followersData = followers.map(f => ({
+      id: f.user_followers.id,
+      username: f.user_followers.username
+    }));
+
+    res.json({
+      count: followersData.length,
+      followers: followersData
+    });
+  } catch (error) {
+    console.error('Error fetching followers:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get details of a user by username
 router.get('/:username', async (req, res) => {
   try {
@@ -152,7 +171,7 @@ router.patch('/:userId/profile-picture', requireAuth, singleMulterUpload('profil
 // Follow a user
 router.post('/follow', requireAuth, async (req, res) => {
   const userId = req.user.id; 
-  const { followedId } = req.body;
+  const { followedId } = req.body; 
 
   try {
     if (userId === followedId) {
@@ -161,8 +180,8 @@ router.post('/follow', requireAuth, async (req, res) => {
 
     const existingFollow = await Follower.findOne({
       where: {
-        user_follower_id: userId,
-        followed_id: followedId
+        user_follower_id: userId, 
+        followed_id: followedId 
       }
     });
 
@@ -177,9 +196,11 @@ router.post('/follow', requireAuth, async (req, res) => {
 
     return res.status(201).json(newFollow);
   } catch (error) {
+    console.error('Error during follow:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 // Unfollow a user
 router.delete('/unfollow', requireAuth, async (req, res) => {
   const userId = req.user.id;
@@ -201,6 +222,31 @@ router.delete('/unfollow', requireAuth, async (req, res) => {
     res.status(200).json({ message: "You have unfollowed the user successfully." });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Route to update a user's bio
+router.patch('/:userId/bio', requireAuth, validateBio, async (req, res) => {
+  const { userId } = req.params;
+  const { bio } = req.body;
+  const { id: user_id } = req.user;
+
+  if (parseInt(userId) !== user_id) {
+    return res.status(403).json({ message: 'You do not have permission to update this profile.' });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.bio = bio || null;
+    await user.save();
+
+    res.status(200).json({ message: 'Bio updated successfully', bio: user.bio });
+  } catch (error) {
+    console.error('Error updating bio:', error);
+    res.status(500).json({ message: 'Error updating bio', error: error.message });
   }
 });
 

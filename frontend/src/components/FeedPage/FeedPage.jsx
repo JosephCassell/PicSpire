@@ -9,10 +9,11 @@ const FeedComponent = () => {
   const [currentPost, setCurrentPost] = useState(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const navigate = useNavigate();
-  const { isLoading, posts, error, currentUser } = useSelector(state => ({
-    ...state.session,
-    posts: state.posts.posts
-  }));
+  const isLoading = useSelector(state => state.session.isLoading);
+  const posts = useSelector(state => state.posts.posts);
+  const error = useSelector(state => state.session.error);
+  const currentUser = useSelector(state => state.session.currentUser);
+
   useEffect(() => {
     dispatch(fetchFeed(currentUser.id));
   }, [dispatch, currentUser.id]);
@@ -24,8 +25,13 @@ const FeedComponent = () => {
   if (error) return <p>Error: {error}</p>;
 
   const feedPosts = posts.filter(post => post.user_id !== currentUser.id);
+  
   const openPostModal = (post) => {
-    setCurrentPost(post);
+    const postOwner = {
+        username: post.user?.username,
+        profilePicture: post.user?.profilePicture
+    };
+    setCurrentPost({ ...post, ...postOwner });
     setShowPostModal(true);
   };
 
@@ -52,14 +58,28 @@ const FeedComponent = () => {
             className={`feed-post-item ${post.images && post.images.length > 0 ? 'with-image' : 'without-image'}`}
             onClick={() => openPostModal(post)}
           >
-            <div className="feed-post-username" onClick={(e) => {
-              e.stopPropagation();
-              goToUserProfile(post.user.username)}}>
-              {post.user?.username}
-              
+            <div className='feed-post-header'>
+              {post.user?.profilePicture ? (
+                <img
+                    src={post.user?.profilePicture}
+                    alt="User Profile"
+                    className="feed-post-profile-picture"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToUserProfile(post.user.username)}}/>
+              ) : (
+                <div className="feed-post-profile-picture-placeholder" onClick={(e) => {
+                  e.stopPropagation();
+                  goToUserProfile(post.user.username)}}></div>
+              )}
+              <div className="feed-post-username" onClick={(e) => {
+                e.stopPropagation();
+                goToUserProfile(post.user.username)}}>
+                {post.user?.username}
+            </div>
             </div>
             {post.caption && (
-              <div className="feed-caption-only">
+              <div className={post.images && post.images.length > 0 ? "feed-caption-with-image" : "feed-caption-no-image"}>
                 {post.caption}
               </div>
             )}
@@ -69,7 +89,14 @@ const FeedComponent = () => {
             
           </div>
         ))}
-        {showPostModal && <PostModal post={currentPost} onClose={closePostModal} />}
+        {showPostModal && (
+            <PostModal 
+                post={currentPost} 
+                onClose={closePostModal} 
+                postOwnerUsername={currentPost?.username} 
+                postOwnerProfilePicture={currentPost?.profilePicture}
+            />
+        )}
       </div>
     </div>
   </div>

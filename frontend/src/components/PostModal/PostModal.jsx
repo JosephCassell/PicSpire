@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import { fetchComments, createComment, deleteComment, editComment } from '../../store/comments';
-import './PostModal.css'
-const PostModal = ({ post, onClose }) => {
+import './PostModal.css';
+
+const PostModal = ({ post, onClose, postOwnerUsername, postOwnerProfilePicture }) => {
   const dispatch = useDispatch();
   const comments = useSelector(state => state.comments.comments);
   const isLoading = useSelector(state => state.comments.isLoading);
@@ -17,11 +18,13 @@ const PostModal = ({ post, onClose }) => {
   const [editingText, setEditingText] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (post) {
       dispatch(fetchComments(post.id));
     }
   }, [dispatch, post, replyBoxVisibleFor]);
+
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % post.images.length);
   };
@@ -29,12 +32,14 @@ const PostModal = ({ post, onClose }) => {
   const handlePreviousImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + post.images.length) % post.images.length);
   };
+
   const toggleRepliesVisibility = (commentId) => {
     setVisibleReplies(prev => ({
       ...prev,
       [commentId]: !prev[commentId]
     }));
   };
+
   const handleReplyClick = (commentId) => {
     setReplyBoxVisibleFor(prev => prev === commentId ? null : commentId);
     setReplyText(prev => ({ ...prev, [commentId]: '' }));
@@ -61,15 +66,18 @@ const PostModal = ({ post, onClose }) => {
   if (!post) {
     return null;
   }
+
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault(); 
       handleEditSubmit(editingCommentId); 
     }
   };
-   const handleEditChange = (e) => {
+
+  const handleEditChange = (e) => {
     setEditingText(e.target.value);
   };
+
   const handleEditSubmit = (commentId, e) => {
     e.preventDefault();
     if (editingText.trim()) {
@@ -78,18 +86,21 @@ const PostModal = ({ post, onClose }) => {
       setEditingText("");
     }
   };
+
   const goToUserProfile = (username) => {
     onClose();
     navigate(`/${username}/profile`);
-  };  
+  };
+
   const handleBackdropClick = () => {
     onClose();
   };
+
   const renderComments = (comments, isChild = false) => {
     return comments.map((comment) => (
       <div key={comment.id} className={`comment ${isChild ? 'child-comment' : ''}`}>
         {editingCommentId === comment.id ? (
-          <form onSubmit={(e) => { handleEditSubmit(comment.id, e)}}>
+          <form onSubmit={(e) => { handleEditSubmit(comment.id, e) }}>
             <textarea className='edit-comment-text-area'
               value={editingText}
               onChange={handleEditChange}
@@ -97,30 +108,56 @@ const PostModal = ({ post, onClose }) => {
               autoFocus
             />
             <button className="save-edit-comment" type="submit">Save</button>
+            <button className="comment-delete-button" type="button" onClick={() => handleDeleteComment(comment.id)}>Delete</button>
           </form>
         ) : (
           <>
-            <div className="comment-text">
-              <div className='comment-profile-name' onClick={(e) => {
-              e.stopPropagation();
-              goToUserProfile(comment.user?.username)}}>
-              {comment.user?.username}</div>
-              {comment.text}
+            <div className="comment-header">
+              <div className="post-header-left">
+                {comment.user?.profilePicture ? (
+                  <img
+                    src={comment.user.profilePicture}
+                    alt="User Profile"
+                    className="comment-profile-picture"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToUserProfile(comment.user?.username);
+                    }}
+                  />
+                ) : (
+                  <div className="comment-profile-picture-placeholder"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToUserProfile(comment.user?.username);
+                    }}>
+
+                  </div>
+                )}
+                <span 
+                  className="comment-username"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToUserProfile(comment.user?.username);
+                  }}
+                >
+                  {comment.user?.username}
+                </span>
+              </div>
+              <div className="comment-text">
+                {comment.text}
+              </div>
             </div>
             <div className="comment-actions">
               <button onClick={() => handleReplyClick(comment.id)} className='reply-button'>Reply</button>
               {comment.user_id === currentUser.id && (
-                <>
-                  <button className='comment-delete-button'onClick={() => handleDeleteComment(comment.id)}>Delete</button>
-                  <button className='comment-edit-button'onClick={() => handleEditClick(comment)}>Edit</button>
-                </>
+                <button className='comment-edit-button' onClick={() => handleEditClick(comment)}>Edit</button>
               )}
               {comment.childComments && comment.childComments.length > 0 && (
-                <button 
-                  onClick={() => toggleRepliesVisibility(comment.id)} 
+                <button
+                  onClick={() => toggleRepliesVisibility(comment.id)}
                   className='view-reply-button'
                 >
-                  {visibleReplies[comment.id] ? 'Close Replies' : 
+                  {visibleReplies[comment.id] ? 'Close Replies' :
                     `View ${comment.childComments.length} ${comment.childComments.length > 1 ? 'Replies' : 'Reply'}`}
                 </button>
               )}
@@ -133,7 +170,7 @@ const PostModal = ({ post, onClose }) => {
                   placeholder="Type your reply..."
                   autoFocus
                 />
-                <button className="post-reply"onClick={(e) => handleReplySubmit(e, comment.id)}>Post Reply</button>
+                <button className="post-reply" onClick={(e) => handleReplySubmit(e, comment.id)}>Post Reply</button>
               </div>
             )}
             {visibleReplies[comment.id] && renderComments(comment.childComments, true)}
@@ -141,8 +178,7 @@ const PostModal = ({ post, onClose }) => {
         )}
       </div>
     ));
-  };
-  
+  };  
   
   const handleReplySubmit = (event, commentId) => {
     event.preventDefault();
@@ -153,7 +189,6 @@ const PostModal = ({ post, onClose }) => {
     }
   };
 
-  
   const renderImages = () => {
     if (!post.images.length) return;
     const imageUrl = post.images[currentImageIndex].image_url;
@@ -165,12 +200,37 @@ const PostModal = ({ post, onClose }) => {
       </div>
     );
   };
-  
 
   return (
     <div className="post-modal-backdrop" onClick={handleBackdropClick}>
       <div className="post-modal-wrapper" onClick={(e) => e.stopPropagation()}>
         <div className="post-modal-content">
+          <div className="post-header">
+            <div className="post-header-left"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToUserProfile(postOwnerUsername);
+              }}>
+              {postOwnerProfilePicture ? (
+                <img
+                  src={postOwnerProfilePicture}
+                  alt={`${postOwnerUsername}'s profile`}
+                  className="comment-profile-picture"
+                />
+              ) : (
+                <div className="comment-profile-picture-placeholder"></div>
+              )}
+              <span 
+                className="feed-post-username"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToUserProfile(postOwnerUsername);
+                }}
+              >
+                {postOwnerUsername}
+              </span>
+            </div>
+          </div>
           <div className="post-caption">{post.caption}</div>
           <div className="image-gallery">{renderImages()}</div>
           <div className="comments-section">
@@ -192,4 +252,5 @@ const PostModal = ({ post, onClose }) => {
     </div>
   );
 }
+
 export default PostModal;
