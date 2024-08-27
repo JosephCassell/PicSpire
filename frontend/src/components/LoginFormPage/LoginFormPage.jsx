@@ -31,7 +31,7 @@ function LoginFormPage() {
 
   const handleDemoLogin = () => {
     setErrors({});
-    dispatch(sessionActions.login({ credential: 'Demo-lition', password: 'password' }))
+    dispatch(sessionActions.login({ credential: 'JohnDoe123', password: 'securePass1' }))
     .then(() => {
       navigate(`/feed`); 
     })
