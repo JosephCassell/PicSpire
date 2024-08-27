@@ -10,6 +10,12 @@ const GET_FOLLOWING = 'session/getFollowing';
 const SET_PROFILE_PICTURE = 'session/updateUserProfilePicture';
 const ADD_FOLLOWING = 'session/addFollowing'
 const REMOVE_FOLLOWING = 'session/removeFollowing'
+const SET_SEARCHED_USERS = 'session/setSearchedUsers';
+
+const setSearchedUsers = (users) => ({
+  type: SET_SEARCHED_USERS,
+  payload: users,
+});
 
 const requestStart = () => ({
   type: REQUEST_START
@@ -256,7 +262,21 @@ export const updateUserBio = (userId, bio) => async (dispatch) => {
     dispatch(requestFail(error.message));
   }
 };
-
+// Search for users by username
+export const searchUsers = (query) => async (dispatch) => {
+  dispatch(requestStart());
+  try {
+    const response = await csrfFetch(`/api/users/search?q=${query}`);
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(setSearchedUsers(data.users)); 
+    } else {
+      throw new Error('Search failed');
+    }
+  } catch (error) {
+    dispatch(requestFail(error.message));
+  }
+};
 const initialState = {
   currentUser: null,
   viewedUser: null,
@@ -266,7 +286,8 @@ const initialState = {
   following: [],
   followersCount: 0,
   followingCount: 0,
-  posts: []
+  posts: [],
+  searchedUsers: []
   };
 
 const sessionReducer = (state = initialState, action) => {
@@ -287,16 +308,16 @@ const sessionReducer = (state = initialState, action) => {
       return { ...state, following: action.payload, followingCount: action.payload.length };
     case ADD_FOLLOWING:
       if (state.currentUser && state.currentUser.id === action.payload.userId) {
-        return { ...state, following: [...state.following, action.payload], followingCount: state.followingCount + 1 };
-      }
+        return { ...state, following: [...state.following, action.payload], followingCount: state.followingCount + 1 };}
       return state;
     case REMOVE_FOLLOWING: 
       if (state.currentUser && state.currentUser.id === action.payload.userId) {
-        return { ...state, following: state.following.filter(f => f.id !== action.payload), followingCount: state.followingCount - 1 };
-      }
-    return state;
+        return { ...state, following: state.following.filter(f => f.id !== action.payload), followingCount: state.followingCount - 1 };}
+      return state;
     case SET_PROFILE_PICTURE: 
       return {...state, viewedUser: {...state.viewedUser, profilePicture: action.payload} }
+    case SET_SEARCHED_USERS:
+      return { ...state, searchedUsers: action.payload, isLoading: false };
     default:
       return state;
   }

@@ -6,6 +6,9 @@ const { handleValidationErrors } = require('../../utils/validation');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User, Follower } = require('../../db/models');
 const { singleFileUpload, singleMulterUpload, multipleFilesUpload, multipleMulterUpload, retrievePrivateFile } = require("../../awsS3");
+const { Op } = require('sequelize');
+const isSQLite = process.env.NODE_ENV === 'development';
+const operator = isSQLite ? Op.like : Op.iLike;
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
@@ -117,6 +120,35 @@ router.get('/:userId/followers', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching followers:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Search users by username
+router.get('/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.trim() === '') {
+      return res.status(400).json({ error: 'Search query is required.' });
+    }
+
+    const users = await User.findAll({
+      where: {
+        username: {
+          [operator]: `%${q}%`
+        }
+      },
+      attributes: ['id', 'username', 'profilePicture']
+    });
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'only me' });
+    }
+
+    res.json({ users });
+  } catch (error) {
+    console.error('Error searching for users:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -249,5 +281,8 @@ router.patch('/:userId/bio', requireAuth, validateBio, async (req, res) => {
     res.status(500).json({ message: 'Error updating bio', error: error.message });
   }
 });
+
+
+
 
 module.exports = router;
