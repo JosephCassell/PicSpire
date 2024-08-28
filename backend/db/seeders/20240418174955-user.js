@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await User.bulkCreate([
+    const users = [
       {
         email: 'john.doe@example.com',
         username: 'JohnDoe123',
@@ -18,8 +18,7 @@ module.exports = {
         firstName: "John",
         lastName: "Doe",
         bio: "Web developer and coffee enthusiast. Love to explore new technologies.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867697444.jpg'
       },
       {
         email: 'jane.smith@example.com',
@@ -28,8 +27,7 @@ module.exports = {
         firstName: "Jane",
         lastName: "Smith",
         bio: "Marketing expert with a passion for social media and content creation.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867698134.jpeg'
       },
       {
         email: 'mike.jones@example.com',
@@ -38,8 +36,7 @@ module.exports = {
         firstName: "Mike",
         lastName: "Jones",
         bio: "Travel blogger documenting my adventures around the world.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867698731.jpg'
       },
       {
         email: 'emily.white@example.com',
@@ -48,8 +45,7 @@ module.exports = {
         firstName: "Emily",
         lastName: "White",
         bio: "Artist and designer. Creating visual stories through paint and pixels.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867698953.jpg'
       },
       {
         email: 'dan.brown@example.com',
@@ -58,8 +54,7 @@ module.exports = {
         firstName: "Dan",
         lastName: "Brown",
         bio: "Tech geek, gamer, and part-time coder. Always learning something new.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867699276.jpg'
       },
       {
         email: 'lisa.green@example.com',
@@ -68,8 +63,7 @@ module.exports = {
         firstName: "Lisa",
         lastName: "Green",
         bio: "Gardening enthusiast sharing tips on growing your own food.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867700126.jpg'
       },
       {
         email: 'michael.lee@example.com',
@@ -78,8 +72,7 @@ module.exports = {
         firstName: "Michael",
         lastName: "Lee",
         bio: "Personal trainer helping others achieve their fitness goals.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867700453.jpg'
       },
       {
         email: 'sarah.connor@example.com',
@@ -87,9 +80,8 @@ module.exports = {
         hashedPassword: bcrypt.hashSync('securePass8'),
         firstName: "Sarah",
         lastName: "Connor",
-        bio: "Freelance writer and storyteller. Writing about life, love, and everything in between.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        bio: "Frelance writer and storyteller. Writing about life, love, and everything in between.",
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867700850.jpeg'
       },
       {
         email: 'chris.evans@example.com',
@@ -98,8 +90,7 @@ module.exports = {
         firstName: "Chris",
         lastName: "Evans",
         bio: "Aspiring actor with a love for classic cinema and theater.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867701080.jpg'
       },
       {
         email: 'linda.baker@example.com',
@@ -108,8 +99,7 @@ module.exports = {
         firstName: "Linda",
         lastName: "Baker",
         bio: "Home baker sharing my favorite recipes and baking tips.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867701628.jpg'
       },
       {
         email: 'alex.johnson@example.com',
@@ -118,8 +108,7 @@ module.exports = {
         firstName: "Alex",
         lastName: "Johnson",
         bio: "Tech blogger reviewing the latest gadgets and software.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867701845.jpeg'
       },
       {
         email: 'rachel.martin@example.com',
@@ -128,8 +117,7 @@ module.exports = {
         firstName: "Rachel",
         lastName: "Martin",
         bio: "Photographer capturing moments one click at a time.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867702015.jpg'
       },
       {
         email: 'samuel.king@example.com',
@@ -138,8 +126,7 @@ module.exports = {
         firstName: "Samuel",
         lastName: "King",
         bio: "Chef and food lover. Sharing my culinary adventures.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867702349.png'
       },
       {
         email: 'olivia.james@example.com',
@@ -148,8 +135,7 @@ module.exports = {
         firstName: "Olivia",
         lastName: "James",
         bio: "Bookworm and aspiring author. Diving into the world of fiction.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867703739.jpeg'
       },
       {
         email: 'david.harris@example.com',
@@ -158,10 +144,12 @@ module.exports = {
         firstName: "David",
         lastName: "Harris",
         bio: "Entrepreneur with a passion for startups and innovation.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        profilePicture: 'https://appacademybuckets.s3.us-west-1.amazonaws.com/public/1724867703911.jpeg'
       }
-    ], { validate: true });
+    ];
+
+    
+    await User.bulkCreate(users, { validate: true });
   },
 
   async down(queryInterface, Sequelize) {
