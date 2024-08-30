@@ -41,17 +41,24 @@ router.post('/', requireAuth, multipleMulterUpload('images'), async (req, res) =
       user_id,
       caption
     });
-
+  
     if (req.files && req.files.length > 0) {
       const imageUrls = await multipleFilesUpload({ files: req.files, public: true });
-      await Promise.all(imageUrls.map(url => 
-        Image.create({
+  
+      await Promise.all(imageUrls.map(async (url) => {
+        console.log('Creating image with:', {
           imageable_id: post.id,
           imageable_type: 'post',
           image_url: url
-        })
-      ));
+        });
+        return Image.create({
+          imageable_id: post.id,
+          imageable_type: 'post',
+          image_url: url
+        });
+      }));
     }
+  
     const resultPost = await Post.findByPk(post.id, {
       include: [{
         model: Image,
@@ -59,7 +66,7 @@ router.post('/', requireAuth, multipleMulterUpload('images'), async (req, res) =
         attributes: ['image_url']
       }]
     });
-
+  
     console.log('Post created successfully:', resultPost);
     res.status(201).json(resultPost);
   } catch (error) {
@@ -68,7 +75,7 @@ router.post('/', requireAuth, multipleMulterUpload('images'), async (req, res) =
       message: 'Error creating post',
       error: error.message
     });
-  }
+  }  
 });
 // Delete a post
 router.delete('/:postId', requireAuth, async (req, res) => {
