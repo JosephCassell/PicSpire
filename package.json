@@ -9,6 +9,7 @@
         "sequelize": "npm run --prefix backend sequelize",
         "sequelize-cli": "npm run --prefix backend sequelize-cli",
         "start": "npm start --prefix backend",
+        "reset-sequence": "node reset-sequence.js",
         "build": "npm run --prefix backend build"
     },
     "keywords": [],
