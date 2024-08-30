@@ -70,12 +70,16 @@ router.post('/', requireAuth, multipleMulterUpload('images'), async (req, res) =
     console.log('Post created successfully:', resultPost);
     res.status(201).json(resultPost);
   } catch (error) {
-    console.error('Error creating post:', error.message, error.stack);
+    if (error instanceof Sequelize.ValidationError) {
+      console.error('Validation error:', error.errors);
+    } else {
+      console.error('Error creating post:', error.message, error.stack);
+    }
     res.status(500).send({
       message: 'Error creating post',
       error: error.message
     });
-  }  
+  }
 });
 // Delete a post
 router.delete('/:postId', requireAuth, async (req, res) => {
