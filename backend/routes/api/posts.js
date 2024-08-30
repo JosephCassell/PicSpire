@@ -62,7 +62,7 @@ router.post('/', requireAuth, multipleMulterUpload('images'), async (req, res) =
     console.log('Post created successfully:', resultPost);
     res.status(201).json(resultPost);
   } catch (error) {
-    console.error('Error creating post:', error);
+    console.error('Error creating post:', error.message, error.stack);
     res.status(500).send({
       message: 'Error creating post',
       error: error.message
