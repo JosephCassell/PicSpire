@@ -6,7 +6,7 @@ const { handleValidationErrors } = require('../../utils/validation');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User, Post, Image, Follower } = require('../../db/models');
 const { multipleFilesUpload, multipleMulterUpload, retrievePrivateFile } = require("../../awsS3");
-
+const Sequelize = require('sequelize');
 // Get post by user id
 router.get('/user/:userId', async (req, res) => {
   try {
