@@ -60,7 +60,7 @@ export const fetchFeed = (userId) => async (dispatch) => {
     });
   }
 };
-// Create a post with multiple images
+// Create a post
 export const createPost = (postDetails) => async (dispatch, getState) => {
   dispatch(requestStart());
   const { session: { currentUser } } = getState();
@@ -90,10 +90,16 @@ export const createPost = (postDetails) => async (dispatch, getState) => {
       dispatch(addPost(data));
     } else {
       const errorData = await response.json();
+      console.error('Failed to create post: ', errorData);
       throw new Error(`Failed to create post: ${errorData.message || 'Unknown error'}`);
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error occurred during post creation:', {
+      message: error.message,
+      stack: error.stack,
+      postDetails,
+      formData: [...formData.entries()]
+    });
     dispatch(requestFail(error.message));
   }
 };
