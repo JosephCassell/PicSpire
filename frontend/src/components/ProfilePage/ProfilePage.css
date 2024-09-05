@@ -12,6 +12,7 @@
   display: flex;
   align-items: start;
   margin-left: 10%;
+  margin-top: 40px;
 }
 
 .profile-detail {
@@ -139,7 +140,7 @@
 }
 
 .post-item {
-  width: 30%;
+  width: 40%;
   background-color: #f3f3f3;
   margin-bottom: 10px;
   padding: 10px;
@@ -190,17 +191,11 @@
   background: transparent;
 }
 
-.caption-with-image {
+.caption-no-image, .caption-with-image {
   text-align: left;
-  margin-left: 29.25px;
+  margin-left: 49.5px;
   margin-bottom: 10px;
-  margin-top: -3px;
-}
-.caption-no-image {
-  text-align: left;
-  margin-left: 29.25px;
-  margin-bottom: 10px;
-  margin-top: -3px
+  margin-top: -20px;
 }
 
 .edit-post-button {
@@ -310,8 +305,8 @@
 
 
 .post-profile-picture.post-profile-picture {
-  width: 25px;
-  height: 25px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -322,12 +317,12 @@
 
 .post-username {
   font-weight: bold;
-  margin-top: -5px;
+  margin-top: -20px;
 }
 
 .post-profile-picture-placeholder {
-  width: 25px;
-  height: 25px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background-color: #ccc;
   display: flex;
