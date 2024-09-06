@@ -62,6 +62,9 @@ router.post(
         }
       }
     });
+    console.log("User found:", user);
+    console.log("Password:", password);
+    console.log("Hashed Password:", user.hashedPassword);
 
     if (!user || !bcrypt.compareSync(password, user.hashedPassword)) {
       const err = new Error('Login failed');

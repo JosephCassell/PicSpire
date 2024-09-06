@@ -75,6 +75,7 @@ const removeFollowing = (userId) => ({
 
 export const login = (user) => async (dispatch) => {
   const { credential, password } = user;
+  console.log('hello')
   const response = await csrfFetch("/api/session", {
     method: "POST",
     body: JSON.stringify({
