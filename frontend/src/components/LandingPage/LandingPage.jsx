@@ -49,7 +49,7 @@ const LandingPage = () => {
                 <ul>
                     <li>
                         <div className='list-item-container-1'>
-                            <h1 class='title'>Welcome to PicSpire</h1>
+                            <h1 className='title'>Welcome to PicSpire</h1>
                             <p className='catchphrase'>Inspire with your pics!</p>
                             <div className='image-grid'>
                                 <img src={selfieImage} alt="Moments" />
